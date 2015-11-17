@@ -3,11 +3,11 @@ package com.layer.messenger.flavor;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.messenger.AuthenticationProvider;
+import com.layer.messenger.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -28,28 +28,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppParticipantProvider implements ParticipantProvider {
-    private final static String TAG = AppParticipantProvider.class.getSimpleName();
-
-    // Placeholder for avatar URLs
-    private final static String[] URLS = new String[]{
-            "https://layer.com/old/images/about/people/Ron_Palmeri@2x.jpg",
-            "https://layer.com/old/images/about/people/Tomaz_Stolfa@2x.jpg",
-            "https://layer.com/old/images/about/people/Stevie_Case@2x.jpg",
-            "https://layer.com/old/images/about/people/Nil_Gradisnik@2x.jpg",
-            "https://layer.com/old/images/about/people/Dean_Talanehzar@2x.jpg",
-            "https://layer.com/old/images/about/people/Kevin_Coleman@2x.jpg",
-            "https://layer.com/old/images/about/people/Michael_Kantor@2x.jpg",
-            "https://layer.com/old/images/about/people/Doug_Rapp@2x.jpg",
-            "https://layer.com/old/images/about/people/Alex_von_Oech@2x.jpg",
-            "https://layer.com/old/images/about/people/Abir_Majumdar@2x.jpg",
-            "https://layer.com/old/images/about/people/Blake_Watters@2x.jpg",
-            "https://layer.com/old/images/about/people/Heather_Blackmore@2x.jpg",
-            "https://layer.com/old/images/about/people/Steven_Jones@2x.jpg",
-            "https://layer.com/old/images/about/people/Klemen_Verdnik@2x.jpg",
-            "https://layer.com/old/images/about/people/Amar_Srinivasan@2x.jpg",
-            "https://layer.com/old/images/about/people/Vivek_Trehan@2x.jpg",
-    };
-
     private final Context mContext;
     private Uri mLayerAppId;
     private final Queue<ParticipantListener> mParticipantListeners = new ConcurrentLinkedQueue<>();
@@ -152,7 +130,7 @@ public class AppParticipantProvider implements ParticipantProvider {
                 }
                 return true;
             } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (Log.isLoggable(Log.ERROR)) Log.e(e.getMessage(), e);
             }
             return false;
         }
@@ -169,7 +147,7 @@ public class AppParticipantProvider implements ParticipantProvider {
                         .commit();
                 return true;
             } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (Log.isLoggable(Log.ERROR)) Log.e(e.getMessage(), e);
             }
         }
         return false;
@@ -195,7 +173,9 @@ public class AppParticipantProvider implements ParticipantProvider {
                     // Handle failure
                     int statusCode = response.getStatusLine().getStatusCode();
                     if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_CREATED) {
-                        Log.e(TAG, String.format("Got status %d when fetching participants", statusCode));
+                        if (Log.isLoggable(Log.ERROR)) {
+                            Log.e(String.format("Got status %d when fetching participants", statusCode));
+                        }
                         return null;
                     }
 
@@ -203,7 +183,7 @@ public class AppParticipantProvider implements ParticipantProvider {
                     JSONArray json = new JSONArray(EntityUtils.toString(response.getEntity()));
                     setParticipants(participantsFromJson(json));
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    if (Log.isLoggable(Log.ERROR)) Log.e(e.getMessage(), e);
                 } finally {
                     mFetching.set(false);
                 }
@@ -225,8 +205,7 @@ public class AppParticipantProvider implements ParticipantProvider {
             AppParticipant participant = new AppParticipant();
             participant.setId(participantObject.optString("id"));
             participant.setName(participantObject.optString("name"));
-            String url = URLS[Math.abs(participant.getId().hashCode()) % URLS.length];
-            if (url != null) participant.setAvatarUrl(Uri.parse(url)); // TODO: placeholder
+            participant.setAvatarUrl(null);
             participants.add(participant);
         }
         return participants;

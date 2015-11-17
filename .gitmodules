@@ -1,3 +1,4 @@
 [submodule "Atlas-Android"]
-path = Atlas-Android
-url = git@github.com:layerhq/Atlas-Android.git
+	path = Atlas-Android
+	url = git@github.com:layerhq/Atlas-Android.git
+	branch = feature/steven-refactor-squashed

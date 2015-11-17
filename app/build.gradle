@@ -1,16 +1,27 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.layer.messenger"
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 5
-        versionName "{$versionCode}"
+        targetSdkVersion 22
+        versionCode 8
+        versionName "$versionCode"
     }
+
+    productFlavors {
+        herokuprovider {
+            applicationId = defaultConfig.applicationId + ".herokuprovider"
+        }
+
+        atlasprovider {
+            applicationId = defaultConfig.applicationId + ".atlasprovider"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

@@ -9,9 +9,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.layer.atlas.utilities.Utils;
+import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PushNotificationReceiver extends BroadcastReceiver {
-    private final static String TAG = PushNotificationReceiver.class.getSimpleName();
     public final static int MESSAGE_ID = 1;
     private final static AtomicInteger sPendingIntentCounter = new AtomicInteger(0);
     private static Notifications sNotifications;
@@ -57,43 +55,55 @@ public class PushNotificationReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals(ACTION_PUSH)) {
             // New push from Layer
-            Log.v(TAG, "Received notification for: " + messageId);
+            if (Log.isLoggable(Log.VERBOSE)) Log.v("Received notification for: " + messageId);
             if (messageId == null) {
-                Log.e(TAG, "No message to notify");
+                if (Log.isLoggable(Log.ERROR)) Log.e("No message to notify");
                 return;
             }
 
             if (!getNotifications(context).isEnabled()) {
-                Log.v(TAG, "Blocking notification due to global app setting");
+                if (Log.isLoggable(Log.VERBOSE)) {
+                    Log.v("Blocking notification due to global app setting");
+                }
                 return;
             }
 
             if (!getNotifications(context).isEnabled(conversationId)) {
-                Log.v(TAG, "Blocking notification due to conversation detail setting");
+                if (Log.isLoggable(Log.VERBOSE)) {
+                    Log.v("Blocking notification due to conversation detail setting");
+                }
                 return;
             }
 
             // Try to have content ready for viewing before posting a Notification
-            Utils.waitForContent(App.getLayerClient().connect(), messageId,
-                    new Utils.ContentAvailableCallback() {
+            Util.waitForContent(App.getLayerClient().connect(), messageId,
+                    new Util.ContentAvailableCallback() {
                         @Override
                         public void onContentAvailable(LayerClient client, Queryable object) {
-                            Log.v(TAG, "Pre-fetched notification content");
+                            if (Log.isLoggable(Log.VERBOSE)) {
+                                Log.v("Pre-fetched notification content");
+                            }
                             getNotifications(context).add(context, (Message) object, text);
                         }
 
                         @Override
                         public void onContentFailed(LayerClient client, Uri objectId, String reason) {
-                            Log.e(TAG, "Failed to fetch notification content");
+                            if (Log.isLoggable(Log.ERROR)) {
+                                Log.e("Failed to fetch notification content");
+                            }
                         }
                     }
             );
         } else if (intent.getAction().equals(ACTION_CANCEL)) {
             // User swiped notification out
-            Log.v(TAG, "Cancelling notifications for: " + conversationId);
+            if (Log.isLoggable(Log.VERBOSE)) {
+                Log.v("Cancelling notifications for: " + conversationId);
+            }
             getNotifications(context).clear(conversationId);
         } else {
-            Log.e(TAG, "Got unknown intent action: " + intent.getAction());
+            if (Log.isLoggable(Log.ERROR)) {
+                Log.e("Got unknown intent action: " + intent.getAction());
+            }
         }
     }
 
@@ -110,6 +120,10 @@ public class PushNotificationReceiver extends BroadcastReceiver {
      * notification summaries.
      */
     public static class Notifications {
+        private static final String KEY_ALL = "all";
+        private static final String KEY_POSITION = "position";
+        private static final String KEY_TEXT = "text";
+
         private final int MAX_MESSAGES = 5;
         // Contains black-listed conversation IDs and the global "all" key for notifications
         private final SharedPreferences mDisableds;
@@ -127,7 +141,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         }
 
         public boolean isEnabled() {
-            return !mDisableds.contains("all");
+            return !mDisableds.contains(KEY_ALL);
         }
 
         public boolean isEnabled(Uri conversationId) {
@@ -136,9 +150,9 @@ public class PushNotificationReceiver extends BroadcastReceiver {
 
         public void setEnabled(boolean enabled) {
             if (enabled) {
-                mDisableds.edit().remove("all").apply();
+                mDisableds.edit().remove(KEY_ALL).apply();
             } else {
-                mDisableds.edit().putBoolean("all", true).apply();
+                mDisableds.edit().putBoolean(KEY_ALL, true).apply();
                 mManager.cancelAll();
             }
         }
@@ -201,13 +215,15 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                 if (messages.has(messageKey)) return;
 
                 JSONObject messageEntry = new JSONObject();
-                messageEntry.put("position", message.getPosition());
-                messageEntry.put("text", text);
+                messageEntry.put(KEY_POSITION, message.getPosition());
+                messageEntry.put(KEY_TEXT, text);
                 messages.put(messageKey, messageEntry);
 
                 mMessages.edit().putString(key, messages.toString()).commit();
             } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (Log.isLoggable(Log.ERROR)) {
+                    Log.e(e.getMessage(), e);
+                }
                 return;
             }
             update(context, conversation, message);
@@ -225,12 +241,14 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                 while (iterator.hasNext()) {
                     String messageId = iterator.next();
                     JSONObject messageJson = messagesJson.getJSONObject(messageId);
-                    long position = messageJson.getLong("position");
-                    String text = messageJson.getString("text");
+                    long position = messageJson.getLong(KEY_POSITION);
+                    String text = messageJson.getString(KEY_TEXT);
                     positionText.put(position, text);
                 }
             } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (Log.isLoggable(Log.ERROR)) {
+                    Log.e(e.getMessage(), e);
+                }
                 return;
             }
 
@@ -239,7 +257,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             Collections.sort(positions);
 
             // Construct notification
-            String conversationTitle = Utils.getConversationTitle(App.getLayerClient(), App.getParticipantProvider(), conversation);
+            String conversationTitle = Util.getConversationTitle(App.getLayerClient(), App.getParticipantProvider(), conversation);
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle().setBigContentTitle(conversationTitle);
             int i;
             if (positions.size() <= MAX_MESSAGES) {
@@ -247,14 +265,14 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                 inboxStyle.setSummaryText(null);
             } else {
                 i = positions.size() - MAX_MESSAGES;
-                inboxStyle.setSummaryText("+" + i + " more");
+                inboxStyle.setSummaryText(context.getString(R.string.notifications_num_more, i));
             }
             while (i < positions.size()) {
                 inboxStyle.addLine(positionText.get(positions.get(i++)));
             }
 
             String collapsedSummary = positions.size() == 1 ? positionText.get(positions.get(0)) :
-                    positions.size() + " new messages";
+                    context.getString(R.string.notifications_new_messages, positions.size());
 
             // Construct notification
             // TODO: use large icon based on avatars
@@ -303,15 +321,15 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         private long getMaxPosition(Uri conversationId) {
             LayerClient layerClient = App.getLayerClient();
 
-            Query q = Query.builder(Message.class)
+            Query<Message> query = Query.builder(Message.class)
                     .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversationId))
                     .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.DESCENDING))
                     .limit(1)
                     .build();
 
-            List<Message> messages = layerClient.executeQueryForObjects(q);
-            if (messages.isEmpty()) return Long.MIN_VALUE;
-            return messages.get(0).getPosition();
+            List results = layerClient.executeQueryForObjects(query);
+            if (results.isEmpty()) return Long.MIN_VALUE;
+            return ((Message) results.get(0)).getPosition();
         }
     }
 }

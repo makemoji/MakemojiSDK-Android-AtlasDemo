@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.provider.Participant;
-import com.layer.atlas.utilities.Utils;
+import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.exceptions.LayerException;
@@ -28,11 +27,8 @@ import com.layer.sdk.listeners.LayerConnectionListener;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
-import java.util.Locale;
 
-public class SettingsActivity extends BaseActivity implements LayerConnectionListener, LayerAuthenticationListener, LayerChangeEventListener, View.OnLongClickListener {
-    private static final String TAG = SettingsActivity.class.getSimpleName();
-
+public class AppSettingsActivity extends BaseActivity implements LayerConnectionListener, LayerAuthenticationListener, LayerChangeEventListener, View.OnLongClickListener {
     /* Account */
     private AtlasAvatar mAvatar;
     private TextView mUserName;
@@ -60,8 +56,8 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
     private TextView mDiskAllowance;
     private TextView mAutoDownloadMimeTypes;
 
-    public SettingsActivity() {
-        super(R.layout.activity_settings, R.menu.menu_settings, R.string.title_settings, true);
+    public AppSettingsActivity() {
+        super(R.layout.activity_app_settings, R.menu.menu_settings, R.string.title_settings, true);
     }
 
     @Override
@@ -108,30 +104,39 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
             @Override
             public void onClick(final View v) {
                 setEnabled(false);
-                new AlertDialog.Builder(SettingsActivity.this)
+                new AlertDialog.Builder(AppSettingsActivity.this)
                         .setCancelable(false)
                         .setMessage(R.string.alert_message_logout)
                         .setPositiveButton(R.string.alert_button_logout, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                if (Log.isLoggable(Log.VERBOSE)) {
+                                    Log.v("Deauthenticating");
+                                }
                                 dialog.dismiss();
-                                final ProgressDialog progressDialog = new ProgressDialog(SettingsActivity.this);
-                                progressDialog.setMessage(getResources().getString(R.string.logout_dialog_message));
+                                final ProgressDialog progressDialog = new ProgressDialog(AppSettingsActivity.this);
+                                progressDialog.setMessage(getResources().getString(R.string.alert_dialog_logout));
                                 progressDialog.setCancelable(false);
                                 progressDialog.show();
-                                App.deauthenticate(new Utils.DeauthenticationCallback() {
+                                App.deauthenticate(new Util.DeauthenticationCallback() {
                                     @Override
                                     public void onDeauthenticationSuccess(LayerClient client) {
+                                        if (Log.isLoggable(Log.VERBOSE)) {
+                                            Log.v("Successfully deauthenticated");
+                                        }
                                         progressDialog.dismiss();
                                         setEnabled(true);
-                                        App.routeLogin(SettingsActivity.this);
+                                        App.routeLogin(AppSettingsActivity.this);
                                     }
 
                                     @Override
                                     public void onDeauthenticationFailed(LayerClient client, String reason) {
+                                        if (Log.isLoggable(Log.ERROR)) {
+                                            Log.e("Failed to deauthenticate: " + reason);
+                                        }
                                         progressDialog.dismiss();
                                         setEnabled(true);
-                                        Toast.makeText(SettingsActivity.this, "Failed to deauthenticate: " + reason, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(AppSettingsActivity.this, getString(R.string.toast_failed_to_deauthenticate, reason), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -150,14 +155,16 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
         mShowNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                PushNotificationReceiver.getNotifications(SettingsActivity.this).setEnabled(isChecked);
+                PushNotificationReceiver.getNotifications(AppSettingsActivity.this).setEnabled(isChecked);
             }
         });
 
         mVerboseLogging.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                LayerClient.setLoggingEnabled(SettingsActivity.this, isChecked);
+                LayerClient.setLoggingEnabled(AppSettingsActivity.this, isChecked);
+                com.layer.atlas.util.Log.setAlwaysLoggable(isChecked);
+                com.layer.messenger.Log.setAlwaysLoggable(isChecked);
             }
         });
     }
@@ -199,24 +206,26 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
         Participant participant = getParticipantProvider().getParticipant(getLayerClient().getAuthenticatedUserId());
         mAvatar.setParticipants(getLayerClient().getAuthenticatedUserId());
         mUserName.setText(participant.getName());
-        mUserState.setText(getLayerClient().isConnected() ? "Connected" : "Disconnected");
+        mUserState.setText(getLayerClient().isConnected() ? R.string.settings_content_connected : R.string.settings_content_disconnected);
 
         /* Notifications */
         mShowNotifications.setChecked(PushNotificationReceiver.getNotifications(this).isEnabled());
 
         /* Debug */
         // enable logging through adb: `adb shell setprop log.tag.LayerSDK VERBOSE`
-        boolean enabledByEnvironment = Log.isLoggable("LayerSDK", Log.VERBOSE);
+        boolean enabledByEnvironment = android.util.Log.isLoggable("LayerSDK", Log.VERBOSE);
         mVerboseLogging.setEnabled(!enabledByEnvironment);
-        mVerboseLogging.setChecked(enabledByEnvironment ? true : LayerClient.isLoggingEnabled());
+        mVerboseLogging.setChecked(enabledByEnvironment || LayerClient.isLoggingEnabled());
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            mAppVersion.setText("Name " + pInfo.versionName + " / Code " + pInfo.versionCode);
+            mAppVersion.setText(getString(R.string.settings_content_app_version, pInfo.versionName, pInfo.versionCode));
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, e.getMessage(), e);
+            if (Log.isLoggable(Log.ERROR)) {
+                Log.e(e.getMessage(), e);
+            }
         }
-        mAndroidVersion.setText("Version " + Build.VERSION.RELEASE + " / API level" + Build.VERSION.SDK_INT);
-        mAtlasVersion.setText(Utils.getVersion());
+        mAndroidVersion.setText(getString(R.string.settings_content_android_version, Build.VERSION.RELEASE, Build.VERSION.SDK_INT));
+        mAtlasVersion.setText(Util.getVersion());
         mLayerVersion.setText(LayerClient.getVersion());
         mUserId.setText(getLayerClient().getAuthenticatedUserId());
         
@@ -228,14 +237,18 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
             totalMessages += conversation.getTotalMessageCount();
             totalUnread += conversation.getTotalUnreadMessageCount();
         }
-        mConversationCount.setText(Integer.toString(conversations.size()));
-        mMessageCount.setText(Long.toString(totalMessages));
-        mUnreadMessageCount.setText(Long.toString(totalUnread));
+        mConversationCount.setText(String.format("%d", conversations.size()));
+        mMessageCount.setText(String.format("%d", totalMessages));
+        mUnreadMessageCount.setText(String.format("%d", totalUnread));
 
         /* Rich Content */
         mDiskUtilization.setText(readableByteFormat(getLayerClient().getDiskUtilization()));
         long allowance = getLayerClient().getDiskCapacity();
-        mDiskAllowance.setText(allowance == 0 ? "Unlimited" : readableByteFormat(allowance));
+        if (allowance == 0) {
+            mDiskAllowance.setText(R.string.settings_content_disk_unlimited);
+        } else {
+            mDiskAllowance.setText(readableByteFormat(allowance));
+        }
         mAutoDownloadMimeTypes.setText(TextUtils.join("\n", getLayerClient().getAutoDownloadMimeTypes()));
     }
 
@@ -245,21 +258,21 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
         long gb = mb * 1024;
 
         double value;
-        String suffix;
+        int suffix;
         if (bytes >= gb) {
             value = (double) bytes / (double) gb;
-            suffix = "GB";
+            suffix = R.string.settings_content_disk_gb;
         } else if (bytes >= mb) {
             value = (double) bytes / (double) mb;
-            suffix = "MB";
+            suffix = R.string.settings_content_disk_mb;
         } else if (bytes >= kb) {
             value = (double) bytes / (double) kb;
-            suffix = "KB";
+            suffix = R.string.settings_content_disk_kb;
         } else {
             value = (double) bytes;
-            suffix = "B";
+            suffix = R.string.settings_content_disk_b;
         }
-        return String.format(Locale.US, "%.2f %s", value, suffix);
+        return getString(R.string.settings_content_disk_usage, value, getString(suffix));
     }
 
 
@@ -306,8 +319,8 @@ public class SettingsActivity extends BaseActivity implements LayerConnectionLis
     @Override
     public boolean onLongClick(View v) {
         if (v instanceof TextView) {
-            Utils.copyToClipboard(v.getContext(), "Settings", ((TextView) v).getText().toString());
-            Toast.makeText(this, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+            Util.copyToClipboard(v.getContext(), R.string.settings_clipboard_description, ((TextView) v).getText().toString());
+            Toast.makeText(this, R.string.toast_copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;

@@ -56,13 +56,13 @@
 
         <!-- Activity: Global app settings -->
         <activity
-            android:name="com.layer.messenger.SettingsActivity"
+            android:name=".AppSettingsActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
         <!-- Activity: Individual Conversation settings -->
         <activity
-            android:name="com.layer.messenger.ConversationDetailsActivity"
+            android:name=".ConversationSettingsActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 

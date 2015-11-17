@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -15,11 +14,10 @@ import android.widget.Toast;
 import com.layer.messenger.App;
 import com.layer.messenger.AuthenticationProvider;
 import com.layer.messenger.ConversationsListActivity;
+import com.layer.messenger.Log;
 import com.layer.messenger.R;
 
 public class AppLoginActivity extends AppCompatActivity {
-    private static final String TAG = AppLoginActivity.class.getSimpleName();
-
     EditText mEmail;
     EditText mPassword;
 
@@ -71,7 +69,9 @@ public class AppLoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(AuthenticationProvider provider, String userId) {
                         progressDialog.dismiss();
-                        Log.e(TAG, "Successfully authenticated as `" + email + "` with userId `" + userId + "`");
+                        if (Log.isLoggable(Log.VERBOSE)) {
+                            Log.v("Successfully authenticated as `" + email + "` with userId `" + userId + "`");
+                        }
                         Intent intent = new Intent(AppLoginActivity.this, ConversationsListActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         AppLoginActivity.this.startActivity(intent);
@@ -80,7 +80,9 @@ public class AppLoginActivity extends AppCompatActivity {
                     @Override
                     public void onError(AuthenticationProvider provider, final String error) {
                         progressDialog.dismiss();
-                        Log.e(TAG, "Failed to authenticate as `" + email + "`: " + error);
+                        if (Log.isLoggable(Log.ERROR)) {
+                            Log.e("Failed to authenticate as `" + email + "`: " + error);
+                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

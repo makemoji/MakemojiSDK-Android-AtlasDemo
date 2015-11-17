@@ -28,8 +28,8 @@ import com.layer.atlas.messagetypes.threepartimage.CameraSender;
 import com.layer.atlas.messagetypes.threepartimage.GallerySender;
 import com.layer.atlas.messagetypes.threepartimage.ThreePartImageCellFactory;
 import com.layer.atlas.typingindicators.BubbleTypingIndicatorFactory;
-import com.layer.atlas.utilities.Utils;
-import com.layer.atlas.utilities.views.SwipeableItem;
+import com.layer.atlas.util.Util;
+import com.layer.atlas.util.views.SwipeableItem;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerConversationException;
 import com.layer.sdk.messaging.Conversation;
@@ -39,7 +39,8 @@ import com.layer.sdk.messaging.Message;
 import java.util.List;
 
 public class MessagesListActivity extends BaseActivity {
-    private static final String TAG = MessagesListActivity.class.getSimpleName();
+    private UiState mState;
+    private Conversation mConversation;
 
     private AtlasAddressBar mAddressBar;
     private AtlasHistoricMessagesFetchLayout mHistoricFetchLayout;
@@ -47,50 +48,36 @@ public class MessagesListActivity extends BaseActivity {
     private AtlasTypingIndicator mTypingIndicator;
     private AtlasMessageComposer mMessageComposer;
 
-    private Conversation mConversation;
-
     public MessagesListActivity() {
         super(R.layout.activity_messages_list, R.menu.menu_messages_list, R.string.title_select_conversation, true);
-    }
-
-    private UiState mState;
-
-    private enum UiState {
-        SEARCH_ONLY,
-        SEARCH_SEND,
-        SEARCH_CONVERSATION_PREVIEW,
-        CONVERSATION_ONLY
     }
 
     private void setUiState(UiState state) {
         if (mState == state) return;
         mState = state;
         switch (state) {
-            /**
-             * Address bar only: no conversation preview or message composer
-             */
-            case SEARCH_ONLY:
+            case ADDRESS:
                 mAddressBar.setVisibility(View.VISIBLE);
                 mAddressBar.setSuggestionsVisibility(View.VISIBLE);
                 mHistoricFetchLayout.setVisibility(View.GONE);
                 mMessageComposer.setVisibility(View.GONE);
                 break;
 
-            case SEARCH_SEND:
+            case ADDRESS_COMPOSER:
                 mAddressBar.setVisibility(View.VISIBLE);
                 mAddressBar.setSuggestionsVisibility(View.VISIBLE);
                 mHistoricFetchLayout.setVisibility(View.GONE);
                 mMessageComposer.setVisibility(View.VISIBLE);
                 break;
 
-            case SEARCH_CONVERSATION_PREVIEW:
+            case ADDRESS_CONVERSATION_COMPOSER:
                 mAddressBar.setVisibility(View.VISIBLE);
                 mAddressBar.setSuggestionsVisibility(View.GONE);
                 mHistoricFetchLayout.setVisibility(View.VISIBLE);
                 mMessageComposer.setVisibility(View.VISIBLE);
                 break;
 
-            case CONVERSATION_ONLY:
+            case CONVERSATION_COMPOSER:
                 mAddressBar.setVisibility(View.GONE);
                 mAddressBar.setSuggestionsVisibility(View.GONE);
                 mHistoricFetchLayout.setVisibility(View.VISIBLE);
@@ -102,6 +89,10 @@ public class MessagesListActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (App.routeLogin(this)) {
+            finish();
+            return;
+        }
 
         mAddressBar = ((AtlasAddressBar) findViewById(R.id.conversation_launcher))
                 .init(getLayerClient(), getParticipantProvider(), getPicasso())
@@ -109,6 +100,7 @@ public class MessagesListActivity extends BaseActivity {
                     @Override
                     public void onConversationClick(AtlasAddressBar addressBar, Conversation conversation) {
                         setConversation(conversation, true);
+                        setTitle(true);
                     }
                 })
                 .setOnParticipantSelectionChangeListener(new AtlasAddressBar.OnParticipantSelectionChangeListener() {
@@ -138,7 +130,7 @@ public class MessagesListActivity extends BaseActivity {
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        if (mState == UiState.SEARCH_CONVERSATION_PREVIEW) {
+                        if (mState == UiState.ADDRESS_CONVERSATION_COMPOSER) {
                             mAddressBar.setSuggestionsVisibility(s.toString().isEmpty() ? View.GONE : View.VISIBLE);
                         }
                     }
@@ -147,7 +139,7 @@ public class MessagesListActivity extends BaseActivity {
                     @Override
                     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                         if (actionId == EditorInfo.IME_ACTION_DONE || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                            setUiState(UiState.CONVERSATION_ONLY);
+                            setUiState(UiState.CONVERSATION_COMPOSER);
                             setTitle(true);
                             return true;
                         }
@@ -171,8 +163,8 @@ public class MessagesListActivity extends BaseActivity {
                     @Override
                     public void onSwipe(final Message message, int direction) {
                         new AlertDialog.Builder(MessagesListActivity.this)
-                                .setMessage("Delete message?")
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                .setMessage(R.string.alert_message_delete_message)
+                                .setNegativeButton(R.string.alert_button_cancel, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         // TODO: simply update this one message
@@ -180,7 +172,7 @@ public class MessagesListActivity extends BaseActivity {
                                         dialog.dismiss();
                                     }
                                 })
-                                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.alert_button_delete, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         message.delete(LayerClient.DeletionMode.ALL_PARTICIPANTS);
@@ -203,15 +195,15 @@ public class MessagesListActivity extends BaseActivity {
                 .init(getLayerClient(), getParticipantProvider())
                 .setTextSender(new TextSender())
                 .addAttachmentSenders(
-                        new CameraSender("Camera", R.drawable.ic_photo_camera_white_24dp, this),
-                        new GallerySender("Gallery", R.drawable.ic_photo_white_24dp, this),
-                        new LocationSender("Location", R.drawable.ic_place_white_24dp, this));
+                        new CameraSender(R.string.attachment_menu_camera, R.drawable.ic_photo_camera_white_24dp, this),
+                        new GallerySender(R.string.attachment_menu_gallery, R.drawable.ic_photo_white_24dp, this),
+                        new LocationSender(R.string.attachment_menu_location, R.drawable.ic_place_white_24dp, this));
 
         mMessageComposer.setOnMessageEditTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    setUiState(UiState.CONVERSATION_ONLY);
+                    setUiState(UiState.CONVERSATION_COMPOSER);
                     setTitle(true);
                 }
             }
@@ -234,7 +226,6 @@ public class MessagesListActivity extends BaseActivity {
             }
         }
         setConversation(conversation, conversation != null);
-        setTitle(conversation != null);
     }
 
     @Override
@@ -242,6 +233,7 @@ public class MessagesListActivity extends BaseActivity {
         // Clear any notifications for this conversation
         PushNotificationReceiver.getNotifications(this).clear(mConversation);
         super.onResume();
+        setTitle(mConversation != null);
     }
 
     @Override
@@ -255,7 +247,7 @@ public class MessagesListActivity extends BaseActivity {
         if (!useConversation) {
             setTitle(R.string.title_select_conversation);
         } else {
-            setTitle(Utils.getConversationTitle(getLayerClient(), getParticipantProvider(), mConversation));
+            setTitle(Util.getConversationTitle(getLayerClient(), getParticipantProvider(), mConversation));
         }
     }
 
@@ -268,32 +260,29 @@ public class MessagesListActivity extends BaseActivity {
 
         // UI state
         if (conversation == null) {
-            setUiState(UiState.SEARCH_ONLY);
+            setUiState(UiState.ADDRESS);
             return;
         }
 
         if (hideLauncher) {
-            setUiState(UiState.CONVERSATION_ONLY);
+            setUiState(UiState.CONVERSATION_COMPOSER);
             return;
         }
 
         if (conversation.getHistoricSyncStatus() == Conversation.HistoricSyncStatus.INVALID) {
             // New "temporary" conversation
-            setUiState(UiState.SEARCH_SEND);
+            setUiState(UiState.ADDRESS_COMPOSER);
         } else {
-            setUiState(UiState.SEARCH_CONVERSATION_PREVIEW);
+            setUiState(UiState.ADDRESS_CONVERSATION_COMPOSER);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_details:
                 if (mConversation == null) return true;
-                Intent intent = new Intent(this, ConversationDetailsActivity.class);
+                Intent intent = new Intent(this, ConversationSettingsActivity.class);
                 intent.putExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY, mConversation.getId());
                 startActivity(intent);
                 return true;
@@ -309,5 +298,12 @@ public class MessagesListActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         ((AtlasMessageComposer) findViewById(R.id.message_composer)).onActivityResult(this, requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private enum UiState {
+        ADDRESS,
+        ADDRESS_COMPOSER,
+        ADDRESS_CONVERSATION_COMPOSER,
+        CONVERSATION_COMPOSER
     }
 }

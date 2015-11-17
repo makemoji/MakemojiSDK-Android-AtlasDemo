@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
-import com.layer.atlas.utilities.Utils;
+import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
@@ -38,9 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ConversationDetailsActivity extends BaseActivity implements LayerPolicyListener, LayerChangeEventListener {
-    private static final String TAG = ConversationDetailsActivity.class.getSimpleName();
-
+public class ConversationSettingsActivity extends BaseActivity implements LayerPolicyListener, LayerChangeEventListener {
     private EditText mConversationName;
     private Switch mShowNotifications;
     private RecyclerView mParticipantRecyclerView;
@@ -50,9 +48,8 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
     private Conversation mConversation;
     private ParticipantAdapter mParticipantAdapter;
 
-
-    public ConversationDetailsActivity() {
-        super(R.layout.activity_conversation_details, R.menu.menu_conversation_details, R.string.title_conversation_details, true);
+    public ConversationSettingsActivity() {
+        super(R.layout.activity_conversation_settings, R.menu.menu_conversation_details, R.string.title_conversation_details, true);
     }
 
     @Override
@@ -80,8 +77,8 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                     String title = ((EditText) v).getText().toString().trim();
-                    Utils.setConversationMetadataTitle(mConversation, title);
-                    Toast.makeText(v.getContext(), "Group name updated", Toast.LENGTH_SHORT).show();
+                    Util.setConversationMetadataTitle(mConversation, title);
+                    Toast.makeText(v.getContext(), R.string.toast_group_name_updated, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -91,7 +88,7 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
         mShowNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                PushNotificationReceiver.getNotifications(ConversationDetailsActivity.this)
+                PushNotificationReceiver.getNotifications(ConversationSettingsActivity.this)
                         .setEnabled(mConversation.getId(), isChecked);
             }
         });
@@ -102,16 +99,17 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
                 setEnabled(false);
                 mConversation.removeParticipants(getLayerClient().getAuthenticatedUserId());
                 refresh();
-                Intent intent = new Intent(ConversationDetailsActivity.this, ConversationsListActivity.class);
+                Intent intent = new Intent(ConversationSettingsActivity.this, ConversationsListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 setEnabled(true);
-                ConversationDetailsActivity.this.startActivity(intent);
+                ConversationSettingsActivity.this.startActivity(intent);
             }
         });
 
         mAddParticipantsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO
                 Toast.makeText(v.getContext(), "Coming soon", Toast.LENGTH_LONG).show();
             }
         });
@@ -125,7 +123,7 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
     private void refresh() {
         if (!getLayerClient().isAuthenticated()) return;
 
-        mConversationName.setText(Utils.getConversationMetadataTitle(mConversation));
+        mConversationName.setText(Util.getConversationMetadataTitle(mConversation));
         mShowNotifications.setChecked(PushNotificationReceiver.getNotifications(this).isEnabled(mConversation.getId()));
 
         Set<String> participantsMinusMe = new HashSet<String>(mConversation.getParticipants());
@@ -187,7 +185,7 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
             Collections.sort(mParticipants);
 
             // Adjust participant container height
-            int height = Math.round(mParticipants.size() * getResources().getDimensionPixelSize(com.layer.atlas.R.dimen.atlas_address_bar_item_height));
+            int height = Math.round(mParticipants.size() * getResources().getDimensionPixelSize(com.layer.atlas.R.dimen.atlas_secondary_item_height));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             mParticipantRecyclerView.setLayoutParams(params);
 
@@ -211,7 +209,7 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
                             .setMessage(holder.mTitle.getText().toString());
 
                     if (mConversation.getParticipants().size() > 2) {
-                        builder.setNeutralButton("Remove", new DialogInterface.OnClickListener() {
+                        builder.setNeutralButton(R.string.alert_button_remove, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mConversation.removeParticipants(holder.mParticipant.getId());
@@ -219,22 +217,23 @@ public class ConversationDetailsActivity extends BaseActivity implements LayerPo
                         });
                     }
 
-                    builder.setPositiveButton(holder.mBlockPolicy != null ? "Unblock " : "Block ", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Participant participant = holder.mParticipant;
-                            if (holder.mBlockPolicy == null) {
-                                // Block
-                                holder.mBlockPolicy = new Policy.Builder(Policy.PolicyType.BLOCK).sentByUserId(participant.getId()).build();
-                                getLayerClient().addPolicy(holder.mBlockPolicy);
-                                holder.mBlocked.setVisibility(View.VISIBLE);
-                            } else {
-                                getLayerClient().removePolicy(holder.mBlockPolicy);
-                                holder.mBlockPolicy = null;
-                                holder.mBlocked.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton(holder.mBlockPolicy != null ? R.string.alert_button_unblock : R.string.alert_button_block,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Participant participant = holder.mParticipant;
+                                    if (holder.mBlockPolicy == null) {
+                                        // Block
+                                        holder.mBlockPolicy = new Policy.Builder(Policy.PolicyType.BLOCK).sentByUserId(participant.getId()).build();
+                                        getLayerClient().addPolicy(holder.mBlockPolicy);
+                                        holder.mBlocked.setVisibility(View.VISIBLE);
+                                    } else {
+                                        getLayerClient().removePolicy(holder.mBlockPolicy);
+                                        holder.mBlockPolicy = null;
+                                        holder.mBlocked.setVisibility(View.INVISIBLE);
+                                    }
+                                }
+                            }).setNegativeButton(R.string.alert_button_cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();

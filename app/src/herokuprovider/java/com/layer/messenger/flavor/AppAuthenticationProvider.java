@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.Log;
 
 import com.layer.messenger.App;
 import com.layer.messenger.AuthenticationProvider;
+import com.layer.messenger.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 
@@ -72,7 +72,9 @@ public class AppAuthenticationProvider implements AuthenticationProvider<AppAuth
     private void privateAuthenticate(final String nonce) {
         Credentials credentials = getCredentials();
         if (credentials == null || credentials.getEmail() == null || (credentials.getPassword() == null && credentials.getAuthToken() == null) || credentials.getLayerAppId() == null) {
-            Log.d(TAG, "No stored credentials to respond to challenge with");
+            if (Log.isLoggable(Log.WARN)) {
+                Log.w("No stored credentials to respond to challenge with");
+            }
             return;
         }
 
@@ -108,7 +110,7 @@ public class AppAuthenticationProvider implements AuthenticationProvider<AppAuth
             if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_CREATED) {
                 String error = String.format("Got status %d when requesting authentication for '%s' with nonce '%s' from '%s'",
                         statusCode, credentials.getEmail(), nonce, url);
-                Log.e(TAG, error);
+                if (Log.isLoggable(Log.ERROR)) Log.e(error);
                 if (mCallback != null) mCallback.onError(this, error);
                 return;
             }
@@ -117,7 +119,7 @@ public class AppAuthenticationProvider implements AuthenticationProvider<AppAuth
             JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity()));
             if (json.has("error")) {
                 String error = json.getString("error");
-                Log.e(TAG, error);
+                if (Log.isLoggable(Log.ERROR)) Log.e(error);
                 if (mCallback != null) mCallback.onError(this, error);
                 return;
             }
@@ -129,37 +131,37 @@ public class AppAuthenticationProvider implements AuthenticationProvider<AppAuth
 
             // Answer authentication challenge.
             String identityToken = json.optString("layer_identity_token", null);
-            Log.d(TAG, "Got identity token: " + identityToken);
+            if (Log.isLoggable(Log.VERBOSE)) Log.v("Got identity token: " + identityToken);
             App.getLayerClient().answerAuthenticationChallenge(identityToken);
         } catch (Exception e) {
             String error = "Error when authenticating with provider: " + e.getMessage();
-            Log.e(TAG, error, e);
+            if (Log.isLoggable(Log.ERROR)) Log.e(error, e);
             if (mCallback != null) mCallback.onError(this, error);
         }
     }
 
     @Override
     public void onAuthenticated(LayerClient layerClient, String userId) {
-        Log.d(TAG, "Authenticated with Layer, user ID: " + userId);
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("Authenticated with Layer, user ID: " + userId);
         layerClient.connect();
         if (mCallback != null) mCallback.onSuccess(this, userId);
     }
 
     @Override
     public void onDeauthenticated(LayerClient layerClient) {
-        Log.d(TAG, "Deauthenticated with Layer");
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("Deauthenticated with Layer");
     }
 
     @Override
     public void onAuthenticationChallenge(final LayerClient layerClient, String nonce) {
-        Log.d(TAG, "Received challenge: " + nonce);
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("Received challenge: " + nonce);
         privateAuthenticate(nonce);
     }
 
     @Override
     public void onAuthenticationError(LayerClient layerClient, LayerException e) {
         String error = "Failed to authenticate with Layer: " + e.getMessage();
-        Log.e(TAG, error, e);
+        if (Log.isLoggable(Log.ERROR)) Log.e(error, e);
         if (mCallback != null) mCallback.onError(this, error);
     }
 
@@ -171,15 +173,18 @@ public class AppAuthenticationProvider implements AuthenticationProvider<AppAuth
         if (layerClient != null && !layerClient.isAuthenticated()) {
             if (hasCredentials()) {
                 // Use the cached AuthenticationProvider credentials to authenticate with Layer.
+                if (Log.isLoggable(Log.VERBOSE)) Log.v("Using cached credentials to authenticate");
                 layerClient.authenticate();
             } else {
                 // App ID, but no user: must authenticate.
+                if (Log.isLoggable(Log.VERBOSE)) Log.v("Routing to login Activity");
                 Intent intent = new Intent(from, AppLoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 from.startActivity(intent);
                 return true;
             }
         }
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("No authentication routing needed");
         return false;
     }
 

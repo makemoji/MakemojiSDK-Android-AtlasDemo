@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -15,6 +14,7 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.layer.messenger.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,8 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class AppIdScanner extends ViewGroup {
-    private static final String TAG = AppIdScanner.class.getSimpleName();
-
     private SurfaceView mSurfaceView;
     private BarcodeDetector mBarcodeDetector;
     private Detector.Processor<Barcode> mAppIdProcessor;
@@ -83,12 +81,16 @@ public class AppIdScanner extends ViewGroup {
                             throw new IllegalArgumentException("URI is not an App ID");
                         }
                         UUID uuid = UUID.fromString(segments.get(2));
-                        Log.v(TAG, "Captured Layer App ID: " + appId + ", UUID: " + uuid);
+                        if (Log.isLoggable(Log.VERBOSE)) {
+                            Log.v("Captured Layer App ID: " + appId + ", UUID: " + uuid);
+                        }
                         if (mAppIdCallback == null) return;
                         mAppIdCallback.onLayerAppIdScanned(AppIdScanner.this, appId);
                     } catch (Exception e) {
                         // Not this barcode...                        
-                        Log.e(TAG, "Barcode does not contain an App ID URI: " + value, e);
+                        if (Log.isLoggable(Log.ERROR)) {
+                            Log.e("Barcode does not contain an App ID URI: " + value, e);
+                        }
                     }
                 }
             }
@@ -135,7 +137,9 @@ public class AppIdScanner extends ViewGroup {
             mCameraSource.start(mSurfaceView.getHolder());
             mStartRequested = false;
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
+            if (Log.isLoggable(Log.ERROR)) {
+                Log.e(e.getMessage(), e);
+            }
         }
     }
 
@@ -173,7 +177,9 @@ public class AppIdScanner extends ViewGroup {
             mCameraSource.stop();
             mCameraSource.release();
         }
-        Log.v(TAG, "Requesting camera preview: " + requestWidth + "x" + requestHeight);
+        if (Log.isLoggable(Log.VERBOSE)) {
+            Log.v("Requesting camera preview: " + requestWidth + "x" + requestHeight);
+        }
         mCameraSource = mCameraBuilder.setRequestedPreviewSize(requestWidth, requestHeight).build();
         startIfReady();
 
@@ -192,7 +198,9 @@ public class AppIdScanner extends ViewGroup {
                         // OK
                     }
                 }
-                Log.v(TAG, "Actual camera preview is: " + previewSize.getWidth() + "x" + previewSize.getHeight());
+                if (Log.isLoggable(Log.VERBOSE)) {
+                    Log.v("Actual camera preview is: " + previewSize.getWidth() + "x" + previewSize.getHeight());
+                }
 
                 boolean isPortrait = getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
                 double previewWidth = isPortrait ? previewSize.getHeight() : previewSize.getWidth();
@@ -213,7 +221,9 @@ public class AppIdScanner extends ViewGroup {
                 double centerLeft = (parentWidth - surfaceWidth) / 2.0;
                 double centerTop = (parentHeight - surfaceHeight) / 2.0;
                 mSurfaceView.layout((int) Math.round(centerLeft), (int) Math.round(centerTop), (int) Math.round(surfaceWidth + centerLeft), (int) Math.round(surfaceHeight + centerTop));
-                Log.v(TAG, "Resized preview layout to: " + (isPortrait ? mSurfaceView.getHeight() : mSurfaceView.getWidth()) + "x" + (isPortrait ? mSurfaceView.getWidth() : mSurfaceView.getHeight()));
+                if (Log.isLoggable(Log.VERBOSE)) {
+                    Log.v("Resized preview layout to: " + (isPortrait ? mSurfaceView.getHeight() : mSurfaceView.getWidth()) + "x" + (isPortrait ? mSurfaceView.getWidth() : mSurfaceView.getHeight()));
+                }
             }
         });
     }

@@ -17,7 +17,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="Options"
+                android:text="@string/conversation_details_title_options"
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
         </FrameLayout>
 
@@ -31,42 +31,38 @@
                 android:id="@+id/conversation_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Group Name"
+                android:hint="@string/conversation_details_hint_group_name"
+                android:imeOptions="actionDone"
                 android:inputType="text"
                 android:singleLine="true"
                 />
 
         </FrameLayout>
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp">
+            android:layout_marginRight="16dp"
+            android:orientation="horizontal"
+            android:weightSum="1">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_weight="1"
+                android:text="@string/conversation_details_switch_show_notifications"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:text="Show Notifications"
-                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            <Switch
+                android:id="@+id/show_notifications_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
 
-                <Switch
-                    android:id="@+id/show_notifications_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"/>
-
-            </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
 
         <Button
             android:id="@+id/leave_button"
@@ -76,7 +72,7 @@
             android:layout_gravity="right"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:text="Leave this group"/>
+            android:text="@string/conversation_details_button_leave_group"/>
 
         <View
             android:layout_width="match_parent"
@@ -93,7 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="Participants"
+                android:text="@string/conversation_details_title_participants"
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
         </FrameLayout>
 
@@ -110,7 +106,7 @@
             android:layout_gravity="right"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:text="Add Participants"
+            android:text="@string/conversation_details_button_add_participants"
             android:visibility="gone"
             />
     </LinearLayout>

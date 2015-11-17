@@ -3,18 +3,18 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/atlas_address_bar_item_height"
+    android:layout_height="@dimen/atlas_secondary_item_height"
     android:background="@drawable/atlas_address_bar_item_background"
     android:orientation="horizontal">
 
     <com.layer.atlas.AtlasAvatar
         android:id="@+id/avatar"
-        android:layout_width="@dimen/atlas_address_bar_item_avatar_size"
-        android:layout_height="@dimen/atlas_address_bar_item_avatar_size"
-        android:layout_marginBottom="@dimen/atlas_address_bar_item_avatar_margin_bottom"
-        android:layout_marginLeft="@dimen/atlas_address_bar_item_avatar_margin_left"
-        android:layout_marginRight="@dimen/atlas_address_bar_item_avatar_margin_right"
-        android:layout_marginTop="@dimen/atlas_address_bar_item_avatar_margin_top"
+        android:layout_width="@dimen/atlas_avatar_item_single"
+        android:layout_height="@dimen/atlas_avatar_item_single"
+        android:layout_marginBottom="@dimen/atlas_padding_narrow"
+        android:layout_marginLeft="@dimen/atlas_padding_normal"
+        android:layout_marginRight="@dimen/atlas_padding_normal"
+        android:layout_marginTop="@dimen/atlas_padding_narrow"
         />
 
     <TextView
@@ -24,15 +24,16 @@
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:singleLine="true"
-        android:text="Title"
-        android:textSize="@dimen/atlas_text_size_conversation_search_item"
+        android:text="[title]"
+        android:textSize="@dimen/atlas_text_size_secondary_item"
         />
 
     <ImageView
         android:id="@+id/blocked"
-        android:layout_width="@dimen/atlas_address_bar_item_avatar_size"
-        android:layout_height="@dimen/atlas_address_bar_item_avatar_size"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:layout_marginRight="@dimen/atlas_padding_normal"
         android:scaleType="center"
         android:src="@drawable/ic_block_white_24dp"
         android:tint="@color/atlas_icon_enabled"
