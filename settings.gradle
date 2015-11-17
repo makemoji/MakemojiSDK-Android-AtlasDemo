@@ -1,0 +1,4 @@
+include ':app'
+
+include ':layer-atlas'
+project(':layer-atlas').projectDir = new File('Atlas-Android/layer-atlas')

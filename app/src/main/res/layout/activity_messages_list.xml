@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <com.layer.atlas.AtlasAddressBar
+        android:id="@+id/conversation_launcher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <com.layer.atlas.AtlasHistoricMessagesFetchLayout
+        android:id="@+id/historic_sync_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.layer.atlas.AtlasMessagesRecyclerView
+            android:id="@+id/messages_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.layer.atlas.AtlasHistoricMessagesFetchLayout>
+
+    <com.layer.atlas.AtlasMessageComposer
+        android:id="@+id/message_composer"
+        android:layout_width="match_parent"
+        android:minHeight="48dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+</LinearLayout>

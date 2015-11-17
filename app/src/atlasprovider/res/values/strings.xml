@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Atlas Demo</string>
+
+    <string name="title_app_id_scanner">Capture Atlas QR Code</string>
+    <string name="login_name_hint">Your name</string>
+    <string name="login_dialog_message">Logging In&#8230;</string>
+</resources>

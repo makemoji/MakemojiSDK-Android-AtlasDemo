@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="app_id_scanner_outline_radius">32dp</dimen>
+    <dimen name="app_id_scanner_outline_thickness">8dp</dimen>
+    <dimen name="app_id_scanner_outline_dash_width">8dp</dimen>
+    <dimen name="app_id_scanner_outline_dash_gap">8dp</dimen>
+</resources>

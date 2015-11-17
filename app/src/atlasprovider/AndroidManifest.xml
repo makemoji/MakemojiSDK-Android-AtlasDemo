@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    package="com.layer.messenger"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- QR Code -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <application>
+        <!-- Atlas Demo Identity Provider (QR Code) -->
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="barcode"/>
+
+        <activity android:name=".flavor.AppAtlasIdScannerActivity"/>
+        <activity
+            android:name=".flavor.AppLoginActivity"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize"/>
+    </application>
+</manifest>
