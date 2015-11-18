@@ -4,9 +4,7 @@ Atlas Messenger is a fully-featured messaging app following [Material Design gui
 
 ##<a name="setup"></a>Setup
 
-`git submodule init` to initialize the [Atlas-Android](https://github.com/layerhq/Atlas-Android) submodule.
-
-`git submodule update` to pull in the submodule contents.
+Run `git submodule update --init` to initialize and pull in the [Atlas-Android](https://github.com/layerhq/Atlas-Android) submodule.
 
 ##<a name="structure"></a>Structure
 
