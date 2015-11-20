@@ -3,8 +3,6 @@ package com.layer.messenger;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,6 +16,7 @@ import android.widget.Toast;
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.provider.Participant;
 import com.layer.atlas.util.Util;
+import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.exceptions.LayerException;
@@ -72,9 +71,9 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
         mShowNotifications = (Switch) findViewById(R.id.show_notifications_switch);
         mVerboseLogging = (Switch) findViewById(R.id.logging_switch);
         mAppVersion = (TextView) findViewById(R.id.app_version);
-        mAndroidVersion = (TextView) findViewById(R.id.android_version);
         mAtlasVersion = (TextView) findViewById(R.id.atlas_version);
         mLayerVersion = (TextView) findViewById(R.id.layer_version);
+        mAndroidVersion = (TextView) findViewById(R.id.android_version);
         mUserId = (TextView) findViewById(R.id.user_id);
         mConversationCount = (TextView) findViewById(R.id.conversation_count);
         mMessageCount = (TextView) findViewById(R.id.message_count);
@@ -164,7 +163,7 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 LayerClient.setLoggingEnabled(AppSettingsActivity.this, isChecked);
                 com.layer.atlas.util.Log.setAlwaysLoggable(isChecked);
-                com.layer.messenger.Log.setAlwaysLoggable(isChecked);
+                Log.setAlwaysLoggable(isChecked);
             }
         });
     }
@@ -216,17 +215,10 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
         boolean enabledByEnvironment = android.util.Log.isLoggable("LayerSDK", Log.VERBOSE);
         mVerboseLogging.setEnabled(!enabledByEnvironment);
         mVerboseLogging.setChecked(enabledByEnvironment || LayerClient.isLoggingEnabled());
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            mAppVersion.setText(getString(R.string.settings_content_app_version, pInfo.versionName, pInfo.versionCode));
-        } catch (PackageManager.NameNotFoundException e) {
-            if (Log.isLoggable(Log.ERROR)) {
-                Log.e(e.getMessage(), e);
-            }
-        }
-        mAndroidVersion.setText(getString(R.string.settings_content_android_version, Build.VERSION.RELEASE, Build.VERSION.SDK_INT));
+        mAppVersion.setText(getString(R.string.settings_content_app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
         mAtlasVersion.setText(Util.getVersion());
         mLayerVersion.setText(LayerClient.getVersion());
+        mAndroidVersion.setText(getString(R.string.settings_content_android_version, Build.VERSION.RELEASE, Build.VERSION.SDK_INT));
         mUserId.setText(getLayerClient().getAuthenticatedUserId());
         
         /* Statistics */

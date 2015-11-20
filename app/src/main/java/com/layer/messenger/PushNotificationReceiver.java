@@ -11,6 +11,11 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.layer.atlas.util.Util;
+import com.layer.messenger.App;
+import com.layer.messenger.BuildConfig;
+import com.layer.messenger.MessagesListActivity;
+import com.layer.messenger.R;
+import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -36,7 +41,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     private static Notifications sNotifications;
 
     public final static String ACTION_PUSH = "com.layer.sdk.PUSH";
-    public final static String ACTION_CANCEL = "com.layer.messenger.CANCEL_PUSH";
+    public final static String ACTION_CANCEL = BuildConfig.APPLICATION_ID + ".CANCEL_PUSH";
 
     public final static String LAYER_TEXT_KEY = "layer-push-message";
     public final static String LAYER_CONVERSATION_KEY = "layer-conversation-id";

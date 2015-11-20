@@ -10,6 +10,7 @@ import android.view.View;
 import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
 import com.layer.atlas.util.views.SwipeableItem;
+import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 

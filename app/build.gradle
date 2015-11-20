@@ -13,12 +13,12 @@ android {
     }
 
     productFlavors {
-        herokuprovider {
-            applicationId = defaultConfig.applicationId + ".herokuprovider"
+        providerrails {
+            applicationId = defaultConfig.applicationId + ".providerrails"
         }
 
-        atlasprovider {
-            applicationId = defaultConfig.applicationId + ".atlasprovider"
+        providerdemo {
+            applicationId = defaultConfig.applicationId + ".providerdemo"
         }
     }
 
@@ -35,5 +35,5 @@ dependencies {
     compile project(':layer-atlas')
 
     // Flavor-specific dependencies
-    atlasproviderCompile 'com.google.android.gms:play-services-vision:8.3.0'
+    providerdemoCompile 'com.google.android.gms:play-services-vision:8.3.0'
 }
