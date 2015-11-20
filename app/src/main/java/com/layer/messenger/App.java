@@ -2,40 +2,44 @@ package com.layer.messenger;
 
 import android.app.Activity;
 import android.app.Application;
-import android.net.Uri;
+import android.content.Context;
 
 import com.layer.atlas.messagetypes.text.TextCellFactory;
 import com.layer.atlas.messagetypes.threepartimage.ThreePartImageUtils;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.requesthandlers.MessagePartRequestHandler;
-import com.layer.messenger.flavor.AppAuthenticationProvider;
-import com.layer.messenger.flavor.AppParticipantProvider;
+import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.sdk.LayerClient;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
+/**
+ * App provides static access to a LayerClient and other Atlas and Messenger context, including
+ * AuthenticationProvider, ParticipantProvider, Participant, and Picasso.
+ *
+ * App.Flavor allows build variants to target different environments, such as the Atlas Demo and the
+ * open source Rails Identity Provider.  Switch flavors with the Android Studio `Build Variant` tab.
+ * When using a flavor besides the Atlas Demo you must manually set your Layer App ID and GCM Sender
+ * ID in that flavor's Flavor.java.
+ *
+ * @see com.layer.messenger.App.Flavor
+ * @see com.layer.messenger.flavor.Flavor
+ * @see LayerClient
+ * @see ParticipantProvider
+ * @see Picasso
+ * @see AuthenticationProvider
+ */
 public class App extends Application {
-    //==============================================================================================
-    // Layer App ID Setup
-    //==============================================================================================
 
-    // Set your LAYER_APP_ID to bypass the QR-Code scanner or use a different identity provider
-    private final static String LAYER_APP_ID = null;
-    private final static String GCM_SENDER_ID = "748607264448";
-
-
-    //==============================================================================================
-    // Attributes
-    //==============================================================================================
+    private static Application sInstance;
+    private static Flavor sFlavor = new com.layer.messenger.flavor.Flavor();
 
     private static LayerClient sLayerClient;
     private static ParticipantProvider sParticipantProvider;
-    private static Picasso sPicasso;
-    private static Uri sLayerAppId;
     private static AuthenticationProvider sAuthProvider;
-    private static Application sInstance;
+    private static Picasso sPicasso;
 
 
     //==============================================================================================
@@ -45,14 +49,15 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        sInstance = this;
-
-        // Synchronize Layer, Atlas, and App logging
-        com.layer.atlas.util.Log.setAlwaysLoggable(LayerClient.isLoggingEnabled());
-        com.layer.messenger.Log.setAlwaysLoggable(LayerClient.isLoggingEnabled());
 
         // Allow the LayerClient to track app state
         LayerClient.applicationCreated(this);
+
+        sInstance = this;
+    }
+
+    public static Application getInstance() {
+        return sInstance;
     }
 
 
@@ -68,8 +73,7 @@ public class App extends Application {
      * @return `true` if the user has been routed to another Activity, or `false` otherwise.
      */
     public static boolean routeLogin(Activity from) {
-        Uri appId = getLayerAppId();
-        return getAuthenticationProvider().routeLogin(getLayerClient(), appId, from);
+        return getAuthenticationProvider().routeLogin(getLayerClient(), getLayerAppId(), from);
     }
 
     /**
@@ -83,7 +87,7 @@ public class App extends Application {
     public static void authenticate(Object credentials, AuthenticationProvider.Callback callback) {
         LayerClient client = getLayerClient();
         if (client == null) return;
-        Uri layerAppId = getLayerAppId();
+        String layerAppId = getLayerAppId();
         if (layerAppId == null) return;
         getAuthenticationProvider()
                 .setCredentials(credentials)
@@ -118,20 +122,17 @@ public class App extends Application {
     //==============================================================================================
 
     /**
-     * Gets or creates a LayerClient.  If there is no app ID to create the client with, returns
-     * `null`.
+     * Gets or creates a LayerClient, using a default set of LayerClient.Options and flavor-specific
+     * App ID and Options from the `generateLayerClient` method.  Returns `null` if the flavor was
+     * unable to create a LayerClient (due to no App ID, etc.).
      *
-     * @return New or existing LayerClient, or `null` if there is no App ID to create a client with.
+     * @return New or existing LayerClient, or `null` if a LayerClient could not be constructed.
+     * @see Flavor#generateLayerClient(Context, LayerClient.Options)
      */
     public static LayerClient getLayerClient() {
         if (sLayerClient == null) {
-            Uri layerAppId = getLayerAppId();
-            if (layerAppId == null) return null;
-
             // Custom options for constructing a LayerClient
             LayerClient.Options options = new LayerClient.Options()
-                    /* Set Google Cloud Messaging Sender ID (project number) */
-                    .googleCloudMessagingSenderId(GCM_SENDER_ID)
 
                     /* Fetch the minimum amount per conversation when first authenticated */
                     .historicSyncPolicy(LayerClient.Options.HistoricSyncPolicy.FROM_LAST_MESSAGE)
@@ -142,31 +143,36 @@ public class App extends Application {
                             ThreePartImageUtils.MIME_TYPE_INFO,
                             ThreePartImageUtils.MIME_TYPE_PREVIEW));
 
-            // Construct LayerClient with custom options
-            sLayerClient = LayerClient.newInstance(sInstance, layerAppId.toString(), options)
-                    /* Register AuthenticationProvider for handling authentication challenges */
-                    .registerAuthenticationListener(getAuthenticationProvider());
+            // Allow flavor to specify Layer App ID and customize Options.
+            sLayerClient = sFlavor.generateLayerClient(sInstance, options);
+
+            // Flavor was unable to generate Layer Client (no App ID, etc.)
+            if (sLayerClient == null) return null;
+
+            /* Register AuthenticationProvider for handling authentication challenges */
+            sLayerClient.registerAuthenticationListener(getAuthenticationProvider());
         }
         return sLayerClient;
     }
 
+    public static String getLayerAppId() {
+        return sFlavor.getLayerAppId();
+    }
+
     public static ParticipantProvider getParticipantProvider() {
         if (sParticipantProvider == null) {
-            sParticipantProvider = new AppParticipantProvider(sInstance)
-                    .setLayerAppId(getLayerAppId())
-                    .setAuthenticationProvider(getAuthenticationProvider());
+            sParticipantProvider = sFlavor.generateParticipantProvider(sInstance, getAuthenticationProvider());
         }
         return sParticipantProvider;
     }
 
     public static AuthenticationProvider getAuthenticationProvider() {
         if (sAuthProvider == null) {
-            sAuthProvider = new AppAuthenticationProvider(sInstance);
+            sAuthProvider = sFlavor.generateAuthenticationProvider(sInstance);
+
+            // If we have cached credentials, try authenticating with Layer
             LayerClient layerClient = getLayerClient();
-            if (layerClient != null && sAuthProvider.hasCredentials()) {
-                // Use the AuthenticationProvider's cached credentials to authenticate with Layer
-                layerClient.authenticate();
-            }
+            if (layerClient != null && sAuthProvider.hasCredentials()) layerClient.authenticate();
         }
         return sAuthProvider;
     }
@@ -182,40 +188,17 @@ public class App extends Application {
     }
 
     /**
-     * Sets the current Layer App ID, and saves it for use next time (to bypass QR code scanner).
+     * Flavor is used by Atlas Messenger to switch environments.
      *
-     * @param appId Layer App ID to use when generating a LayerClient.
+     * @see com.layer.messenger.flavor.Flavor
      */
-    public static void setLayerAppId(Uri appId) {
-        if (Log.isLoggable(Log.VERBOSE)) Log.v("Saving Layer App ID: " + appId);
-        sLayerAppId = appId;
-        sInstance.getSharedPreferences("layerAppId", MODE_PRIVATE).edit()
-                .putString("layerAppId", appId.toString()).commit();
-    }
+    public interface Flavor {
+        String getLayerAppId();
 
-    /**
-     * Returns either the constant `LAYER_APP_ID`, or an App ID saved from e.g. the QR code scanner.
-     */
-    public static Uri getLayerAppId() {
-        // In-memory cached App ID?
-        if (sLayerAppId != null) {
-            return sLayerAppId;
-        }
+        LayerClient generateLayerClient(Context context, LayerClient.Options options);
 
-        // Build-time constant?
-        if (LAYER_APP_ID != null) {
-            if (Log.isLoggable(Log.VERBOSE)) {
-                Log.v("Using constant `App.LAYER_APP_ID` App ID: " + LAYER_APP_ID);
-            }
-            sLayerAppId = Uri.parse(LAYER_APP_ID);
-            return sLayerAppId;
-        }
+        AuthenticationProvider generateAuthenticationProvider(Context context);
 
-        // Saved App ID?
-        String saved = sInstance.getSharedPreferences("layerAppId", MODE_PRIVATE).getString("layerAppId", null);
-        if (saved == null) return null;
-        if (Log.isLoggable(Log.VERBOSE)) Log.v("Loaded Layer App ID: " + saved);
-        sLayerAppId = Uri.parse(saved);
-        return sLayerAppId;
+        ParticipantProvider generateParticipantProvider(Context context, AuthenticationProvider authenticationProvider);
     }
 }

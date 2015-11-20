@@ -197,17 +197,16 @@ public class MessagesListActivity extends BaseActivity {
                 .addAttachmentSenders(
                         new CameraSender(R.string.attachment_menu_camera, R.drawable.ic_photo_camera_white_24dp, this),
                         new GallerySender(R.string.attachment_menu_gallery, R.drawable.ic_photo_white_24dp, this),
-                        new LocationSender(R.string.attachment_menu_location, R.drawable.ic_place_white_24dp, this));
-
-        mMessageComposer.setOnMessageEditTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    setUiState(UiState.CONVERSATION_COMPOSER);
-                    setTitle(true);
-                }
-            }
-        });
+                        new LocationSender(R.string.attachment_menu_location, R.drawable.ic_place_white_24dp, this))
+                .setOnMessageEditTextFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus) {
+                            setUiState(UiState.CONVERSATION_COMPOSER);
+                            setTitle(true);
+                        }
+                    }
+                });
 
         // Get or create Conversation from Intent extras
         Conversation conversation = null;

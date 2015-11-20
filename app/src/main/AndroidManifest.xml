@@ -22,16 +22,16 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
 
     <permission
-        android:name="com.layer.messenger.permission.LAYER_PUSH"
+        android:name="${applicationId}.permission.LAYER_PUSH"
         android:protectionLevel="signature"/>
-    <uses-permission android:name="com.layer.messenger.permission.LAYER_PUSH"/>
+    <uses-permission android:name="${applicationId}.permission.LAYER_PUSH"/>
     <permission
-        android:name="com.layer.messenger.permission.C2D_MESSAGE"
+        android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature"/>
-    <uses-permission android:name="com.layer.messenger.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
 
     <application
-        android:name="com.layer.messenger.App"
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@drawable/layer_launcher"
         android:label="@string/app_name"
@@ -40,7 +40,7 @@
         >
 
         <!-- Activity: List of Conversations -->
-        <activity android:name="com.layer.messenger.ConversationsListActivity">
+        <activity android:name=".ConversationsListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -49,7 +49,7 @@
 
         <!-- Activity: Messages in a Conversation; AddressBar -->
         <activity
-            android:name="com.layer.messenger.MessagesListActivity"
+            android:name=".MessagesListActivity"
             android:windowSoftInputMode="adjustResize"
             >
         </activity>
@@ -69,18 +69,18 @@
         <!-- Receiver: Our app notification handling -->
         <receiver
             android:name=".PushNotificationReceiver"
-            android:permission="com.layer.messenger.permission.LAYER_PUSH">
+            android:permission="${applicationId}.permission.LAYER_PUSH">
 
             <!-- Layer SDK broadcasts this, which we use to generate notifications -->
             <intent-filter>
                 <action android:name="com.layer.sdk.PUSH"/>
-                <category android:name="com.layer.messenger"/>
+                <category android:name="${applicationId}"/>
             </intent-filter>
 
             <!-- Our app sets this as a PendingIntent to handle user notification swipe-outs -->
             <intent-filter>
-                <action android:name="com.layer.messenger.CANCEL_PUSH"/>
-                <category android:name="com.layer.messenger"/>
+                <action android:name="${applicationId}.CANCEL_PUSH"/>
+                <category android:name="${applicationId}"/>
             </intent-filter>
         </receiver>
 
@@ -93,7 +93,7 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
                 <action android:name="com.google.android.c2dm.intent.REGISTER"/>
 
-                <category android:name="com.layer.messenger"/>
+                <category android:name="${applicationId}"/>
             </intent-filter>
         </receiver>
 
