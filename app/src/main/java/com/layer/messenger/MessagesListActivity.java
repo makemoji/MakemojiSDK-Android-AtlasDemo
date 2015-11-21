@@ -90,7 +90,7 @@ public class MessagesListActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (App.routeLogin(this)) {
-            finish();
+            if (!isFinishing()) finish();
             return;
         }
 
@@ -295,8 +295,14 @@ public class MessagesListActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        ((AtlasMessageComposer) findViewById(R.id.message_composer)).onActivityResult(this, requestCode, resultCode, data);
+        mMessageComposer.onActivityResult(this, requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        mMessageComposer.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private enum UiState {

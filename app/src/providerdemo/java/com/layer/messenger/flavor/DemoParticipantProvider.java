@@ -8,15 +8,14 @@ import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.messenger.util.Log;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.layer.messenger.util.Util.streamToString;
 
 public class DemoParticipantProvider implements ParticipantProvider {
     private final Context mContext;
@@ -163,15 +164,17 @@ public class DemoParticipantProvider implements ParticipantProvider {
                 try {
                     // Post request
                     String url = "https://layer-identity-provider.herokuapp.com/apps/" + mLayerAppIdLastPathSegment + "/atlas_identities";
-                    HttpGet get = new HttpGet(url);
-                    get.setHeader("Content-Type", "application/json");
-                    get.setHeader("Accept", "application/json");
-                    get.setHeader("X_LAYER_APP_ID", mLayerAppIdLastPathSegment);
-                    HttpResponse response = new DefaultHttpClient().execute(get);
+                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                    connection.setDoInput(true);
+                    connection.setDoOutput(false);
+                    connection.setRequestMethod("GET");
+                    connection.addRequestProperty("Content-Type", "application/json");
+                    connection.addRequestProperty("Accept", "application/json");
+                    connection.addRequestProperty("X_LAYER_APP_ID", mLayerAppIdLastPathSegment);
 
                     // Handle failure
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_CREATED) {
+                    int statusCode = connection.getResponseCode();
+                    if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
                         if (Log.isLoggable(Log.ERROR)) {
                             Log.e(String.format("Got status %d when fetching participants", statusCode));
                         }
@@ -179,7 +182,11 @@ public class DemoParticipantProvider implements ParticipantProvider {
                     }
 
                     // Parse response
-                    JSONArray json = new JSONArray(EntityUtils.toString(response.getEntity()));
+                    InputStream in = new BufferedInputStream(connection.getInputStream());
+                    String result = streamToString(in);
+                    in.close();
+                    connection.disconnect();
+                    JSONArray json = new JSONArray(result);
                     setParticipants(participantsFromJson(json));
                 } catch (Exception e) {
                     if (Log.isLoggable(Log.ERROR)) Log.e(e.getMessage(), e);

@@ -6,16 +6,19 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.messenger.App;
-import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.messenger.ConversationsListActivity;
-import com.layer.messenger.util.Log;
 import com.layer.messenger.R;
+import com.layer.messenger.flavor.util.CustomEndpoint;
+import com.layer.messenger.util.AuthenticationProvider;
+import com.layer.messenger.util.Log;
 
 public class RailsLoginActivity extends AppCompatActivity {
     EditText mEmail;
@@ -49,6 +52,15 @@ public class RailsLoginActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        // Optionally add a CustomEndpoint Spinner (not typical)
+        if (Flavor.LAYER_APP_ID == null) {
+            Spinner customEndpoints = CustomEndpoint.createSpinner(this);
+            if (customEndpoints != null) {
+                customEndpoints.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                ((ViewGroup) mPassword.getParent()).addView(customEndpoints);
+            }
+        }
     }
 
     @Override

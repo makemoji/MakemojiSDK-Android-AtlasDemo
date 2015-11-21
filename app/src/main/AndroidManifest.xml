@@ -15,11 +15,11 @@
 
     <!-- Layer SDK -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.GET_TASKS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="18"/>
+    <uses-permission android:name="android.permission.GET_TASKS" android:maxSdkVersion="20"/>
 
     <permission
         android:name="${applicationId}.permission.LAYER_PUSH"
@@ -84,7 +84,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Receiver: Layer SDK GCM handling -->
+        <!--Receiver: Layer SDK GCM handling -->
         <receiver
             android:name="com.layer.sdk.services.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -96,6 +96,13 @@
                 <category android:name="${applicationId}"/>
             </intent-filter>
         </receiver>
+
+        <!--Service: Layer SDK GCM handling -->
+        <service android:name="com.layer.sdk.services.GcmIntentService"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
 
     </application>
 

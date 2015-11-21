@@ -64,7 +64,7 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
         // Get Conversation from Intent extras
         Uri conversationId = getIntent().getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
         mConversation = getLayerClient().getConversation(conversationId);
-        if (mConversation == null) finish();
+        if (mConversation == null && !isFinishing()) finish();
 
         mParticipantAdapter = new ParticipantAdapter();
         mParticipantRecyclerView.setAdapter(mParticipantAdapter);

@@ -11,10 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.layer.atlas.util.Util;
-import com.layer.messenger.App;
-import com.layer.messenger.BuildConfig;
-import com.layer.messenger.MessagesListActivity;
-import com.layer.messenger.R;
 import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -62,7 +58,11 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             // New push from Layer
             if (Log.isLoggable(Log.VERBOSE)) Log.v("Received notification for: " + messageId);
             if (messageId == null) {
-                if (Log.isLoggable(Log.ERROR)) Log.e("No message to notify");
+                if (Log.isLoggable(Log.ERROR)) Log.e("No message to notify: " + extras);
+                return;
+            }
+            if (conversationId == null) {
+                if (Log.isLoggable(Log.ERROR)) Log.e("No conversation to notify: " + extras);
                 return;
             }
 
@@ -150,6 +150,9 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         }
 
         public boolean isEnabled(Uri conversationId) {
+            if (conversationId == null) {
+                return isEnabled();
+            }
             return !mDisableds.contains(conversationId.toString());
         }
 
@@ -163,6 +166,9 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         }
 
         public void setEnabled(Uri conversationId, boolean enabled) {
+            if (conversationId == null) {
+                return;
+            }
             if (enabled) {
                 mDisableds.edit().remove(conversationId.toString()).apply();
             } else {

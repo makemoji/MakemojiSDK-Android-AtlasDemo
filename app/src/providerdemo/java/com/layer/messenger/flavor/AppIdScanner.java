@@ -1,8 +1,10 @@
 package com.layer.messenger.flavor;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -103,6 +105,7 @@ public class AppIdScanner extends ViewGroup {
 
         mCameraBuilder = new CameraSource.Builder(getContext(), mBarcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
+                .setAutoFocusEnabled(true)
                 .setRequestedFps(30.0f);
 
         mSurfaceView = new SurfaceView(getContext());
@@ -133,6 +136,12 @@ public class AppIdScanner extends ViewGroup {
 
     private void startIfReady() {
         if (!mStartRequested || !mSurfaceAvailable || mCameraSource == null) return;
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (Log.isLoggable(Log.ERROR)) {
+                Log.e("Required permission `" + android.Manifest.permission.CAMERA + "` not granted.");
+            }
+            return;
+        }
         try {
             mCameraSource.start(mSurfaceView.getHolder());
             mStartRequested = false;

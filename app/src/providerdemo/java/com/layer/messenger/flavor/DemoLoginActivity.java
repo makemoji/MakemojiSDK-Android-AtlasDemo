@@ -12,10 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.messenger.App;
-import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.messenger.ConversationsListActivity;
-import com.layer.messenger.util.Log;
 import com.layer.messenger.R;
+import com.layer.messenger.util.AuthenticationProvider;
+import com.layer.messenger.util.Log;
 
 public class DemoLoginActivity extends AppCompatActivity {
     EditText mName;

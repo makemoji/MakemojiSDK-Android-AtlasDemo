@@ -3,7 +3,7 @@
 <resources>
     <string name="app_name">Atlas Messenger</string>
     <string name="app_id_required">Please set your Layer App ID in `Flavor.java` when using the Rails Identity Provider.  You can get your Layer App ID from the developer dashboard.</string>
-    
+
     <string name="login_email_hint">Email</string>
     <string name="login_password_hint">Password</string>
     <string name="login_dialog_message">Logging In&#8230;</string>
