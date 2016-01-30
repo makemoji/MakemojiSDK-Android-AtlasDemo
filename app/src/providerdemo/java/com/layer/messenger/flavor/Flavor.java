@@ -11,7 +11,7 @@ import com.layer.sdk.LayerClient;
 public class Flavor implements App.Flavor {
     // Set your Layer App ID from your Layer developer dashboard to bypass the QR-Code scanner.
     private final static String LAYER_APP_ID = null;
-    private final static String LAYER_GCM_SENDER_ID = "748607264448";
+    private final static String GCM_SENDER_ID = "748607264448";
 
     private String mLayerAppId;
 
@@ -69,7 +69,7 @@ public class Flavor implements App.Flavor {
         String appId = getLayerAppId();
         if (appId == null) return null;
 
-        options.googleCloudMessagingSenderId(LAYER_GCM_SENDER_ID);
+        options.googleCloudMessagingSenderId(GCM_SENDER_ID);
         return LayerClient.newInstance(context, appId, options);
     }
 

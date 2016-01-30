@@ -1,17 +1,12 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout android:id="@+id/app_id_scanner_layout"
+             xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
-
-    <com.layer.messenger.flavor.AppIdScanner
-        android:id="@+id/app_id_scanner"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
     <View
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:layout_gravity="center"
         android:background="@drawable/app_id_scanner_outline"/>
-
 
 </FrameLayout>

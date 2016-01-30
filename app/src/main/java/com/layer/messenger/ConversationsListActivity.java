@@ -23,7 +23,7 @@ public class ConversationsListActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (App.routeLogin(this)) {
-            finish();
+            if (!isFinishing()) finish();
             return;
         }
 

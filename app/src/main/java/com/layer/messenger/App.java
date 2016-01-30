@@ -50,6 +50,13 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        // Enable verbose logging in debug builds
+        if (BuildConfig.DEBUG) {
+            com.layer.atlas.util.Log.setAlwaysLoggable(true);
+            com.layer.messenger.util.Log.setAlwaysLoggable(true);
+            LayerClient.setLoggingEnabled(this, true);
+        }
+
         // Allow the LayerClient to track app state
         LayerClient.applicationCreated(this);
 

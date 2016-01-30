@@ -6,19 +6,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
-import com.layer.messenger.App;
 import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static com.layer.messenger.util.Util.streamToString;
 
 public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAuthenticationProvider.Credentials> {
     private final SharedPreferences mPreferences;
@@ -52,55 +53,6 @@ public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAu
         return this;
     }
 
-    private void privateAuthenticate(final String nonce) {
-        Credentials credentials = new Credentials(mPreferences.getString("appId", null), mPreferences.getString("name", null));
-        if (credentials.getUserName() == null || credentials.getLayerAppId() == null) {
-            if (Log.isLoggable(Log.WARN)) {
-                Log.w("No stored credentials to respond to challenge with");
-            }
-            return;
-        }
-
-        try {
-            // Post request
-            String url = "https://layer-identity-provider.herokuapp.com/apps/" + credentials.getLayerAppId() + "/atlas_identities";
-            HttpPost post = new HttpPost(url);
-            post.setHeader("Content-Type", "application/json");
-            post.setHeader("Accept", "application/json");
-            post.setHeader("X_LAYER_APP_ID", credentials.getLayerAppId());
-            StringEntity entity = new StringEntity(new JSONObject().put("nonce", nonce).put("name", credentials.getUserName()).toString(), "UTF-8");
-            entity.setContentType("application/json");
-            post.setEntity(entity);
-            HttpResponse response = new DefaultHttpClient().execute(post);
-
-            // Handle failure
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_CREATED) {
-                String error = String.format("Got status %d when requesting authentication for '%s' with nonce '%s' from '%s'",
-                        statusCode, credentials.getUserName(), nonce, url);
-                if (Log.isLoggable(Log.ERROR)) Log.e(error);
-                if (mCallback != null) mCallback.onError(this, error);
-                return;
-            }
-
-            // Parse response
-            JSONObject json = new JSONObject(EntityUtils.toString(response.getEntity()));
-            if (json.has("error")) {
-                String error = json.getString("error");
-                if (Log.isLoggable(Log.ERROR)) Log.e(error);
-                if (mCallback != null) mCallback.onError(this, error);
-                return;
-            }
-            String identityToken = json.getString("identity_token");
-            if (Log.isLoggable(Log.VERBOSE)) Log.v("Got identity token: " + identityToken);
-            App.getLayerClient().answerAuthenticationChallenge(identityToken);
-        } catch (Exception e) {
-            String error = "Error when authenticating with provider: " + e.getMessage();
-            if (Log.isLoggable(Log.ERROR)) Log.e(error, e);
-            if (mCallback != null) mCallback.onError(this, error);
-        }
-    }
-
     @Override
     public void onAuthenticated(LayerClient layerClient, String userId) {
         if (Log.isLoggable(Log.VERBOSE)) Log.v("Authenticated with Layer, user ID: " + userId);
@@ -116,9 +68,9 @@ public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAu
     }
 
     @Override
-    public void onAuthenticationChallenge(final LayerClient layerClient, String nonce) {
+    public void onAuthenticationChallenge(LayerClient layerClient, String nonce) {
         if (Log.isLoggable(Log.VERBOSE)) Log.v("Received challenge: " + nonce);
-        privateAuthenticate(nonce);
+        respondToChallenge(layerClient, nonce);
     }
 
     @Override
@@ -156,6 +108,71 @@ public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAu
         }
         if (Log.isLoggable(Log.VERBOSE)) Log.v("No authentication routing needed");
         return false;
+    }
+
+    private void respondToChallenge(LayerClient layerClient, String nonce) {
+        Credentials credentials = new Credentials(mPreferences.getString("appId", null), mPreferences.getString("name", null));
+        if (credentials.getUserName() == null || credentials.getLayerAppId() == null) {
+            if (Log.isLoggable(Log.WARN)) {
+                Log.w("No stored credentials to respond to challenge with");
+            }
+            return;
+        }
+
+        try {
+            // Post request
+            String url = "https://layer-identity-provider.herokuapp.com/apps/" + credentials.getLayerAppId() + "/atlas_identities";
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("X_LAYER_APP_ID", credentials.getLayerAppId());
+
+            // Credentials
+            JSONObject rootObject = new JSONObject()
+                    .put("nonce", nonce)
+                    .put("name", credentials.getUserName());
+
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            OutputStream os = connection.getOutputStream();
+            os.write(rootObject.toString().getBytes("UTF-8"));
+            os.close();
+
+            // Handle failure
+            int statusCode = connection.getResponseCode();
+            if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
+                String error = String.format("Got status %d when requesting authentication for '%s' with nonce '%s' from '%s'",
+                        statusCode, credentials.getUserName(), nonce, url);
+                if (Log.isLoggable(Log.ERROR)) Log.e(error);
+                if (mCallback != null) mCallback.onError(this, error);
+                return;
+            }
+
+            // Parse response
+            InputStream in = new BufferedInputStream(connection.getInputStream());
+            String result = streamToString(in);
+            in.close();
+            connection.disconnect();
+            JSONObject json = new JSONObject(result);
+            if (json.has("error")) {
+                String error = json.getString("error");
+                if (Log.isLoggable(Log.ERROR)) Log.e(error);
+                if (mCallback != null) mCallback.onError(this, error);
+                return;
+            }
+
+            // Answer authentication challenge.
+            String identityToken = json.optString("identity_token", null);
+            if (Log.isLoggable(Log.VERBOSE)) Log.v("Got identity token: " + identityToken);
+            layerClient.answerAuthenticationChallenge(identityToken);
+        } catch (Exception e) {
+            String error = "Error when authenticating with provider: " + e.getMessage();
+            if (Log.isLoggable(Log.ERROR)) Log.e(error, e);
+            if (mCallback != null) mCallback.onError(this, error);
+        }
     }
 
     public static class Credentials {

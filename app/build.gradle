@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.layer.messenger"
         minSdkVersion 14
-        targetSdkVersion 22
-        versionCode 8
+        targetSdkVersion 23
+        versionCode 18
         versionName "$versionCode"
     }
 
@@ -35,5 +35,5 @@ dependencies {
     compile project(':layer-atlas')
 
     // Flavor-specific dependencies
-    providerdemoCompile 'com.google.android.gms:play-services-vision:8.3.0'
+    providerdemoCompile 'com.google.android.gms:play-services-vision:8.4.0'
 }
