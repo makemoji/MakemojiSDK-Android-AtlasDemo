@@ -3,9 +3,6 @@
     package="com.layer.messenger"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- QR Code, CameraSender -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-
     <!-- GallerySender -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -63,6 +60,12 @@
         <!-- Activity: Individual Conversation settings -->
         <activity
             android:name=".ConversationSettingsActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <!-- Activity: Resume using provider credentials -->
+        <activity
+            android:name=".ResumeActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 

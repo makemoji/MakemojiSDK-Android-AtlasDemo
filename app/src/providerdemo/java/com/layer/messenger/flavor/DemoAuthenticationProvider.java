@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import com.layer.messenger.ResumeActivity;
 import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
@@ -92,22 +93,32 @@ public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAu
             from.startActivity(intent);
             return true;
         }
-        if (layerClient != null && !layerClient.isAuthenticated()) {
-            if (hasCredentials()) {
-                // Use the cached AuthenticationProvider credentials to authenticate with Layer.
-                if (Log.isLoggable(Log.VERBOSE)) Log.v("Using cached credentials to authenticate");
-                layerClient.authenticate();
-            } else {
-                // App ID, but no user: must authenticate.
-                if (Log.isLoggable(Log.VERBOSE)) Log.v("Routing to login Activity");
-                Intent intent = new Intent(from, DemoLoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                from.startActivity(intent);
-                return true;
-            }
+
+        if ((layerClient != null) && layerClient.isAuthenticated()) {
+            // The LayerClient is authenticated: no action required.
+            if (Log.isLoggable(Log.VERBOSE)) Log.v("No authentication routing required");
+            return false;
         }
-        if (Log.isLoggable(Log.VERBOSE)) Log.v("No authentication routing needed");
-        return false;
+
+        if ((layerClient != null) && hasCredentials()) {
+            // With a LayerClient and cached provider credentials, we can resume.
+            if (Log.isLoggable(Log.VERBOSE)) {
+                Log.v("Routing to resume Activity using cached credentials");
+            }
+            Intent intent = new Intent(from, ResumeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(ResumeActivity.EXTRA_LOGGED_IN_ACTIVITY_CLASS_NAME, from.getClass().getName());
+            intent.putExtra(ResumeActivity.EXTRA_LOGGED_OUT_ACTIVITY_CLASS_NAME, DemoLoginActivity.class.getName());
+            from.startActivity(intent);
+            return true;
+        }
+
+        // We have a Layer App ID but no cached provider credentials: routing to Login required.
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("Routing to login Activity");
+        Intent intent = new Intent(from, DemoLoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        from.startActivity(intent);
+        return true;
     }
 
     private void respondToChallenge(LayerClient layerClient, String nonce) {

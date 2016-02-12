@@ -3,7 +3,7 @@
     package="com.layer.messenger"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- QR Code -->
+    <!-- QR Code, CameraSender -->
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application>

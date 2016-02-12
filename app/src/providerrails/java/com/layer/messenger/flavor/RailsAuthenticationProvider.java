@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import com.layer.messenger.R;
+import com.layer.messenger.ResumeActivity;
 import com.layer.messenger.flavor.util.CustomEndpoint;
 import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.messenger.util.Log;
@@ -16,11 +17,8 @@ import com.layer.sdk.exceptions.LayerException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -94,10 +92,16 @@ public class RailsAuthenticationProvider implements AuthenticationProvider<Rails
         }
 
         if ((layerClient != null) && hasCredentials()) {
-            // With a LayerClient and cached provider credentials, we can authenticate here without routing required.
-            if (Log.isLoggable(Log.VERBOSE)) Log.v("Using cached credentials to resume");
-            layerClient.authenticate();
-            return false;
+            // With a LayerClient and cached provider credentials, we can resume.
+            if (Log.isLoggable(Log.VERBOSE)) {
+                Log.v("Routing to resume Activity using cached credentials");
+            }
+            Intent intent = new Intent(from, ResumeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(ResumeActivity.EXTRA_LOGGED_IN_ACTIVITY_CLASS_NAME, from.getClass().getName());
+            intent.putExtra(ResumeActivity.EXTRA_LOGGED_OUT_ACTIVITY_CLASS_NAME, RailsLoginActivity.class.getName());
+            from.startActivity(intent);
+            return true;
         }
 
         // We have a Layer App ID but no cached provider credentials: routing to Login required.
@@ -155,7 +159,7 @@ public class RailsAuthenticationProvider implements AuthenticationProvider<Rails
             if (credentials.getAuthToken() != null) {
                 connection.setRequestProperty("X_AUTH_TOKEN", credentials.getAuthToken());
             }
-            
+
             // Credentials
             JSONObject rootObject = new JSONObject();
             JSONObject userObject = new JSONObject();
