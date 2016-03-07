@@ -58,6 +58,7 @@ public class DemoLoginActivity extends AppCompatActivity {
                 new AuthenticationProvider.Callback() {
                     @Override
                     public void onSuccess(AuthenticationProvider provider, String userId) {
+                        Log.perf("DemoLoginActivity.onSuccess");
                         progressDialog.dismiss();
                         if (Log.isLoggable(Log.VERBOSE)) {
                             Log.v("Successfully authenticated as `" + name + "` with userId `" + userId + "`");
@@ -69,6 +70,7 @@ public class DemoLoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(AuthenticationProvider provider, final String error) {
+                        Log.perf("DemoLoginActivity.onError");
                         progressDialog.dismiss();
                         if (Log.isLoggable(Log.ERROR)) {
                             Log.e("Failed to authenticate as `" + name + "`: " + error);

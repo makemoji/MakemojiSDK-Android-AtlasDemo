@@ -7,6 +7,7 @@ import android.content.Context;
 import com.layer.atlas.messagetypes.text.TextCellFactory;
 import com.layer.atlas.messagetypes.threepartimage.ThreePartImageUtils;
 import com.layer.atlas.provider.ParticipantProvider;
+import com.layer.atlas.util.Log;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.requesthandlers.MessagePartRequestHandler;
 import com.layer.messenger.util.AuthenticationProvider;
@@ -49,6 +50,20 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (Log.isPerfLoggable()) {
+            Log.perf("Perf logging enabled");
+            if (Log.isLoggable(Log.INFO)) {
+                Log.i("Perf logging enabled");
+            }
+        } else {
+            Log.perf("Perf logging disabled");
+            if (Log.isLoggable(Log.INFO)) {
+                Log.i("Perf logging disabled");
+            }
+        }
+
+        Log.perf("App.onCreate");
 
         // Enable verbose logging in debug builds
         if (BuildConfig.DEBUG) {
@@ -99,6 +114,7 @@ public class App extends Application {
         getAuthenticationProvider()
                 .setCredentials(credentials)
                 .setCallback(callback);
+        Log.perf("App.authenticate");
         client.authenticate();
     }
 
@@ -108,16 +124,19 @@ public class App extends Application {
      * @param callback Callback to receive deauthentication success and failure.
      */
     public static void deauthenticate(final Util.DeauthenticationCallback callback) {
+        Log.perf("App.deauthenticate");
         Util.deauthenticate(getLayerClient(), new Util.DeauthenticationCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onDeauthenticationSuccess(LayerClient client) {
                 getAuthenticationProvider().setCredentials(null);
+                Log.perf("App.onDeauthenticationSuccess");
                 callback.onDeauthenticationSuccess(client);
             }
 
             @Override
             public void onDeauthenticationFailed(LayerClient client, String reason) {
+                Log.perf("App.onDeauthenticationFailed");
                 callback.onDeauthenticationFailed(client, reason);
             }
         });

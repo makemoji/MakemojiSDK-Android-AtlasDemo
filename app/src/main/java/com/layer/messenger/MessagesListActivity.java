@@ -28,6 +28,7 @@ import com.layer.atlas.messagetypes.threepartimage.CameraSender;
 import com.layer.atlas.messagetypes.threepartimage.GallerySender;
 import com.layer.atlas.messagetypes.threepartimage.ThreePartImageCellFactory;
 import com.layer.atlas.typingindicators.BubbleTypingIndicatorFactory;
+import com.layer.atlas.util.Log;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.views.SwipeableItem;
 import com.layer.sdk.LayerClient;
@@ -222,6 +223,10 @@ public class MessagesListActivity extends BaseActivity {
             if (intent.hasExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY)) {
                 Uri conversationId = intent.getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
                 conversation = getLayerClient().getConversation(conversationId);
+                if (intent.getParcelableExtra(PushNotificationReceiver.LAYER_MESSAGE_KEY) != null) {
+                    // Message key is only set for push notifications.
+                    Log.perf("MessagesListActivity.onCreate.pushIntent:PushNotificationHandling-Start");
+                }
             } else if (intent.hasExtra("participantIds")) {
                 String[] participantIds = intent.getStringArrayExtra("participantIds");
                 try {

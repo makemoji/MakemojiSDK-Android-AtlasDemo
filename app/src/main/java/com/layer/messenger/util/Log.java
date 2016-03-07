@@ -6,6 +6,7 @@ package com.layer.messenger.util;
  */
 public class Log {
     public static final String TAG = "LayerAtlasMsgr";
+    public static final String PERFTAG = "LayerPerf";
 
     // Makes IDE auto-completion easy
     public static final int VERBOSE = android.util.Log.VERBOSE;
@@ -74,5 +75,15 @@ public class Log {
 
     public static void e(String message, Throwable error) {
         android.util.Log.e(TAG, message, error);
+    }
+
+    private static boolean isPerfLoggable(int level) {
+        return sAlwaysLoggable || android.util.Log.isLoggable(PERFTAG, level);
+    }
+
+    public static void perf(String message) {
+        if (isPerfLoggable(DEBUG)) {
+            android.util.Log.d(PERFTAG, message);
+        }
     }
 }

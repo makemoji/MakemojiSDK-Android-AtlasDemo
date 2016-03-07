@@ -80,6 +80,7 @@ public class RailsLoginActivity extends AppCompatActivity {
                 new AuthenticationProvider.Callback() {
                     @Override
                     public void onSuccess(AuthenticationProvider provider, String userId) {
+                        Log.perf("RailsLoginActivity.onSuccess");
                         progressDialog.dismiss();
                         if (Log.isLoggable(Log.VERBOSE)) {
                             Log.v("Successfully authenticated as `" + email + "` with userId `" + userId + "`");
@@ -91,6 +92,7 @@ public class RailsLoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(AuthenticationProvider provider, final String error) {
+                        Log.perf("RailsLoginActivity.onError");
                         progressDialog.dismiss();
                         if (Log.isLoggable(Log.ERROR)) {
                             Log.e("Failed to authenticate as `" + email + "`: " + error);
