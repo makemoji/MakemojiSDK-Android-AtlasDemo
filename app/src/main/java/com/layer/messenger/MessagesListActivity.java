@@ -225,7 +225,9 @@ public class MessagesListActivity extends BaseActivity {
                 conversation = getLayerClient().getConversation(conversationId);
                 if (intent.getParcelableExtra(PushNotificationReceiver.LAYER_MESSAGE_KEY) != null) {
                     // Message key is only set for push notifications.
-                    Log.perf("MessagesListActivity.onCreate.pushIntent:PushNotificationHandling-Start");
+                    if (Log.isPerfLoggable()) {
+                        Log.perf("MessagesListActivity.onCreate.pushIntent:PushNotificationHandling-Start");
+                    }
                 }
             } else if (intent.hasExtra("participantIds")) {
                 String[] participantIds = intent.getStringArrayExtra("participantIds");
