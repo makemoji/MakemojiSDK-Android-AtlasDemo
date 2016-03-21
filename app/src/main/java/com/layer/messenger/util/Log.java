@@ -5,7 +5,7 @@ package com.layer.messenger.util;
  * `android.util.Log`. Logs are tagged with `Atlas`.
  */
 public class Log {
-    public static final String TAG = "AtlasMessenger";
+    public static final String TAG = "LayerAtlasMsgr";
 
     // Makes IDE auto-completion easy
     public static final int VERBOSE = android.util.Log.VERBOSE;
