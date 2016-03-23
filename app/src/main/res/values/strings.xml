@@ -20,7 +20,8 @@
     <string name="alert_dialog_logout">Logging Out&#8230;</string>
 
     <string name="alert_button_cancel">Cancel</string>
-    <string name="alert_button_delete">Delete</string>
+    <string name="alert_button_delete_my_devices">For Me</string>
+    <string name="alert_button_delete_all_participants">From All</string>
     <string name="alert_button_remove">Remove</string>
     <string name="alert_button_block">Block</string>
     <string name="alert_button_unblock">Unblock</string>

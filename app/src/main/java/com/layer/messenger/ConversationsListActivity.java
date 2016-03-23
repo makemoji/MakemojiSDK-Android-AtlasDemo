@@ -61,12 +61,19 @@ public class ConversationsListActivity extends BaseActivity {
                                         dialog.dismiss();
                                     }
                                 })
-                                .setPositiveButton(R.string.alert_button_delete, new DialogInterface.OnClickListener() {
+                                .setNeutralButton(R.string.alert_button_delete_my_devices, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        conversation.delete(LayerClient.DeletionMode.ALL_MY_DEVICES);
+                                    }
+                                })
+                                .setPositiveButton(R.string.alert_button_delete_all_participants, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         conversation.delete(LayerClient.DeletionMode.ALL_PARTICIPANTS);
                                     }
-                                }).show();
+                                })
+                                .show();
                     }
                 });
 
