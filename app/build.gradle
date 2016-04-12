@@ -8,7 +8,7 @@ android {
         applicationId "com.layer.messenger"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 24
+        versionCode 25
         versionName "$versionCode"
     }
 
