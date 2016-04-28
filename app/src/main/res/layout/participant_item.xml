@@ -8,20 +8,12 @@
     android:layout_height="@dimen/atlas_secondary_item_height"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/avatar"
-        android:layout_width="@dimen/atlas_avatar_item_single"
-        android:layout_height="@dimen/atlas_avatar_item_single"
-        android:layout_marginBottom="@dimen/atlas_padding_narrow"
-        android:layout_marginLeft="@dimen/atlas_padding_normal"
-        android:layout_marginRight="@dimen/atlas_padding_normal"
-        android:layout_marginTop="@dimen/atlas_padding_narrow"
-        />
-
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/atlas_padding_normal"
+        android:layout_marginStart="@dimen/atlas_padding_normal"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:singleLine="true"

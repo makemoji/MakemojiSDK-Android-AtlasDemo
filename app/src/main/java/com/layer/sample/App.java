@@ -6,9 +6,6 @@ import android.content.Context;
 
 import com.layer.sample.util.AuthenticationProvider;
 import com.layer.sdk.LayerClient;
-import com.squareup.picasso.Picasso;
-
-import java.util.Arrays;
 
 /**
  * App provides static access to a LayerClient and other Atlas and Messenger context, including
@@ -23,7 +20,6 @@ import java.util.Arrays;
  * @see com.layer.sample.flavor.Flavor
  * @see LayerClient
  * @see ParticipantProvider
- * @see Picasso
  * @see AuthenticationProvider
  */
 public class App extends Application {
@@ -34,7 +30,6 @@ public class App extends Application {
     private static LayerClient sLayerClient;
     private static ParticipantProvider sParticipantProvider;
     private static AuthenticationProvider sAuthProvider;
-    private static Picasso sPicasso;
 
 
     //==============================================================================================
@@ -178,17 +173,6 @@ public class App extends Application {
             if (layerClient != null && sAuthProvider.hasCredentials()) layerClient.authenticate();
         }
         return sAuthProvider;
-    }
-
-    public static Picasso getPicasso() {
-        if (sPicasso == null) {
-            // Picasso with custom RequestHandler for loading from Layer MessageParts.
-            sPicasso = new Picasso.Builder(sInstance)
-                    // TODO add request handler for picasso?
-//                    .addRequestHandler(new MessagePartRequestHandler(getLayerClient()))
-                    .build();
-        }
-        return sPicasso;
     }
 
     /**

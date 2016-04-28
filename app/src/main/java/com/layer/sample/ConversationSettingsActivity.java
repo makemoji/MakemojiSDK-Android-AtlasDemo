@@ -267,7 +267,6 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView mAvatar;
         TextView mTitle;
         ImageView mBlocked;
         Participant mParticipant;
@@ -275,7 +274,6 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
 
         public ViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.participant_item, parent, false));
-            mAvatar = (ImageView) itemView.findViewById(R.id.avatar);
             mTitle = (TextView) itemView.findViewById(R.id.title);
             mBlocked = (ImageView) itemView.findViewById(R.id.blocked);
         }

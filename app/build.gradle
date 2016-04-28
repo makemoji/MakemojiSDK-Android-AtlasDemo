@@ -37,8 +37,6 @@ dependencies {
 
     compile 'com.layer.sdk:layer-sdk:0.20.3'
     compile 'org.slf4j:slf4j-nop:1.5.8'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-
 
     // Flavor-specific dependencies
     providerdemoCompile 'com.google.android.gms:play-services-vision:8.4.0'

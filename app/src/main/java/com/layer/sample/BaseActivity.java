@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.layer.sdk.LayerClient;
-import com.squareup.picasso.Picasso;
 
 public abstract class BaseActivity extends AppCompatActivity {
     private final int mLayoutResId;
@@ -87,9 +86,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected ParticipantProvider getParticipantProvider() {
         return App.getParticipantProvider();
-    }
-
-    protected Picasso getPicasso() {
-        return App.getPicasso();
     }
 }
