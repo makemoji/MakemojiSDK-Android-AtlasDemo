@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+    <!--TODO add background-->
+    <!--android:background="@drawable/atlas_address_bar_item_background"-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/atlas_secondary_item_height"
-    android:background="@drawable/atlas_address_bar_item_background"
     android:orientation="horizontal">
 
-    <com.layer.atlas.AtlasAvatar
+    <ImageView
         android:id="@+id/avatar"
         android:layout_width="@dimen/atlas_avatar_item_single"
         android:layout_height="@dimen/atlas_avatar_item_single"

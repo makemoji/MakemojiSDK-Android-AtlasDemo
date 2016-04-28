@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="atlas_avatar_item_single">40dp</dimen>
+    <dimen name="atlas_padding_narrow">8dp</dimen>
+    <dimen name="atlas_padding_normal">16dp</dimen>
+    <dimen name="atlas_text_size_secondary_item">16sp</dimen>
+    <dimen name="atlas_secondary_item_height">56dp</dimen>
+
+    <dimen name="message_item_cell_radius">15dp</dimen>
+    <dimen name="message_item_cell_padding_top">4dp</dimen>
+    <dimen name="message_item_cell_padding_bottom">6dp</dimen>
+    <dimen name="message_item_cell_padding_near">8dp</dimen>
+    <dimen name="message_item_cell_padding_far">9dp</dimen>
+
+</resources>

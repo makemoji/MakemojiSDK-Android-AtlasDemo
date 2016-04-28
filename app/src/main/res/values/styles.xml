@@ -3,13 +3,10 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Atlas.Light">
-        <!-- Apply default Atlas styles -->
-        <item name="AtlasConversationsRecyclerView">@style/AtlasConversationsRecyclerView</item>
-        <item name="AtlasMessagesRecyclerView">@style/AtlasMessagesRecyclerView</item>
-        <item name="AtlasMessageComposer">@style/AtlasMessageComposer</item>
-        <item name="AtlasAddressBar">@style/AtlasAddressBar</item>
-        <item name="AtlasTypingIndicator">@style/AtlasTypingIndicator</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

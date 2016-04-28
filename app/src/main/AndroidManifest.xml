@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="com.layer.messenger"
+    package="com.layer.sample"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- GallerySender -->
@@ -28,7 +28,7 @@
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
 
     <application
-        android:name=".App"
+        android:name="com.layer.sample.App"
         android:allowBackup="true"
         android:icon="@drawable/layer_launcher"
         android:label="@string/app_name"
@@ -37,7 +37,7 @@
         >
 
         <!-- Activity: List of Conversations -->
-        <activity android:name=".ConversationsListActivity">
+        <activity android:name=".conversationlist.ConversationsListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -46,7 +46,7 @@
 
         <!-- Activity: Messages in a Conversation; AddressBar -->
         <activity
-            android:name=".MessagesListActivity"
+            android:name=".messagelist.MessagesListActivity"
             android:windowSoftInputMode="adjustResize"
             >
         </activity>

@@ -2,7 +2,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <com.layer.atlas.AtlasConversationsRecyclerView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/conversations_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
