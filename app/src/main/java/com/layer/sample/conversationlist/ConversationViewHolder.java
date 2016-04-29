@@ -4,12 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import com.layer.sample.Participant;
-import com.layer.sample.ParticipantProvider;
 import com.layer.sample.R;
-import com.layer.sdk.messaging.Conversation;
-
-import java.util.List;
 
 public class ConversationViewHolder extends RecyclerView.ViewHolder {
 
@@ -35,7 +30,7 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
         messageTextView.setText(message);
     }
 
-    public void setLastMessageTime(String time) {
+    public void setLastMessageTime(CharSequence time) {
         lastMessageTimeTextView.setText(time);
     }
 

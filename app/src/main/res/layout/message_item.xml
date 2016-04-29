@@ -26,7 +26,7 @@
         tools:text="Sample message" />
 
     <TextView
-        android:id="@+id/date_sent"
+        android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/message_item_cell_padding_far"

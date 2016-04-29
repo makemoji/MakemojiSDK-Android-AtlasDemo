@@ -14,7 +14,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     private TextView participantNameTextView;
     private TextView messageTextView;
-    private TextView dateSentTextView;
+    private TextView statusTextView;
     private View itemView;
 
     public MessageViewHolder(View itemView) {
@@ -22,7 +22,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         this.itemView = itemView;
         participantNameTextView = (TextView) itemView.findViewById(R.id.name);
         messageTextView = (TextView) itemView.findViewById(R.id.message);
-        dateSentTextView = (TextView) itemView.findViewById(R.id.date_sent);
+        statusTextView = (TextView) itemView.findViewById(R.id.status);
     }
 
     public void setParticipantName(String participantName) {
@@ -38,8 +38,8 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         messageTextView.setText(message);
     }
 
-    public void setDateSent(String dateSent) {
-        dateSentTextView.setText(dateSent);
+    public void setStatusText(String status) {
+        statusTextView.setText(status);
     }
 
     public void setIsUsersMessage(boolean isUsersMessage) {
@@ -54,7 +54,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
             messageTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.black));
         }
         ((LinearLayout.LayoutParams) messageTextView.getLayoutParams()).gravity = gravity;
-        ((LinearLayout.LayoutParams) dateSentTextView.getLayoutParams()).gravity = gravity;
+        ((LinearLayout.LayoutParams) statusTextView.getLayoutParams()).gravity = gravity;
     }
 
 

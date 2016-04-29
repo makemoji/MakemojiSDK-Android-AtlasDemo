@@ -23,10 +23,10 @@
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
+        android:visibility="gone"
         app:layout_column="0"
         app:layout_columnSpan="2"
         app:layout_row="1"
-        android:visibility="gone"
         tools:text="User is typing" />
 
     <View
@@ -53,6 +53,8 @@
         style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onSendClicked"
         android:text="@string/message_compose_send"
         android:textAllCaps="true"
         app:layout_column="1"

@@ -22,6 +22,7 @@ import com.layer.sdk.query.Query;
 import com.layer.sdk.query.RecyclerViewController;
 import com.layer.sdk.query.SortDescriptor;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -74,8 +75,12 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
 
     private void setMessageDate(ConversationViewHolder holder, Message lastMessage) {
         Date sentDate = lastMessage.getSentAt();
-        String formattedTime = DateUtils.formatDateTime(mContext, sentDate.getTime(), DateUtils.FORMAT_SHOW_TIME);
-        holder.setLastMessageTime(formattedTime);
+        if (sentDate != null) {
+            CharSequence formattedTime = DateUtils.formatSameDayTime(sentDate.getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.SHORT);
+            holder.setLastMessageTime(formattedTime);
+        } else {
+            holder.setLastMessageTime(null);
+        }
     }
 
     private void setMessage(ConversationViewHolder holder, Message lastMessage) {

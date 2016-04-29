@@ -20,6 +20,7 @@ import com.layer.sdk.query.RecyclerViewController;
 import com.layer.sdk.query.SortDescriptor;
 
 import java.util.Date;
+import java.util.Map;
 
 public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
@@ -27,6 +28,7 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
     private RecyclerViewController<Message> mQueryController;
     private String mAuthenticatedUserId;
     private Context mContext;
+    private OnMessageAppendedListener mMessageAppenedListener;
 
 
     public MessagesRecyclerAdapter(Context context, LayerClient layerClient, ParticipantProvider participantProvider) {
@@ -43,6 +45,10 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
                 .build();
         mQueryController.setQuery(messageQuery);
         mQueryController.execute();
+    }
+
+    public void setMessageAppenedListener(OnMessageAppendedListener listener) {
+        mMessageAppenedListener = listener;
     }
 
     @Override
@@ -70,10 +76,67 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         // Set message
         holder.setMessage(MessageUtils.getMessageText(message));
 
+        setStatusText(holder, message);
+    }
+
+    private void setStatusText(MessageViewHolder holder, Message message) {
         // Set date
-        Date sentAt = message.getSentAt();
-        String date = DateUtils.formatDateTime(mContext, sentAt.getTime(), DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_TIME);
-        holder.setDateSent(date);
+        Date sentDate = message.getSentAt();
+        CharSequence formattedTime = null;
+        if (sentDate != null) {
+            int flags = DateUtils.FORMAT_SHOW_TIME;
+            if (!DateUtils.isToday(sentDate.getTime())) {
+                flags |= DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_DATE;
+            }
+            formattedTime = DateUtils.formatDateTime(mContext, sentDate.getTime(), flags);
+        }
+
+        String status = getMessageStatus(message);
+
+        if (formattedTime != null && status != null) {
+            holder.setStatusText(formattedTime + " - " + status);
+        } else if (formattedTime != null) {
+            holder.setStatusText(formattedTime.toString());
+        } else if (status != null) {
+            holder.setStatusText(status);
+        } else {
+            holder.setStatusText(null);
+        }
+    }
+
+    private String getMessageStatus(Message message) {
+        String status = null;
+        boolean sent = false;
+        boolean delivered = false;
+        Map<String, Message.RecipientStatus> recipientStatuses = message.getRecipientStatus();
+        for (Map.Entry<String, Message.RecipientStatus> entry : recipientStatuses.entrySet()) {
+            if (entry.getKey().equals(mAuthenticatedUserId)) {
+                continue;
+            }
+            if (entry.getValue() == Message.RecipientStatus.READ) {
+                status = mContext.getString(R.string.message_status_read);
+                break;
+            }
+            switch (entry.getValue()) {
+                case PENDING:
+                    if (!sent && !delivered) {
+                        status = mContext.getString(R.string.message_status_pending);
+                    }
+                    break;
+                case SENT:
+                    if (!delivered) {
+                        status = mContext.getString(R.string.message_status_sent);
+                    }
+                    sent = true;
+                    break;
+                case DELIVERED:
+                    status = mContext.getString(R.string.message_status_delivered);
+                    delivered = true;
+                    break;
+            }
+
+        }
+        return status;
     }
 
     @Override
@@ -100,11 +163,18 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         @Override
         public void onQueryItemInserted(RecyclerViewController controller, int position) {
             notifyItemInserted(position);
+            if (mMessageAppenedListener != null && (position + 1) == getItemCount()) {
+                mMessageAppenedListener.onMessageAppended();
+            }
         }
 
         @Override
         public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
             notifyItemRangeInserted(positionStart, itemCount);
+            int positionEnd = positionStart + itemCount;
+            if (mMessageAppenedListener != null && (positionEnd + 1) == getItemCount()) {
+                mMessageAppenedListener.onMessageAppended();
+            }
         }
 
         @Override
@@ -121,5 +191,9 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         public void onQueryItemMoved(RecyclerViewController controller, int fromPosition, int toPosition) {
             notifyItemMoved(fromPosition, toPosition);
         }
+    }
+
+    public interface OnMessageAppendedListener {
+        void onMessageAppended();
     }
 }
