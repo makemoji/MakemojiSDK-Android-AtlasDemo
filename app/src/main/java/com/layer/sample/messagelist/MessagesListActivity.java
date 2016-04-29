@@ -1,18 +1,11 @@
 package com.layer.sample.messagelist;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import com.layer.sample.App;
@@ -24,9 +17,6 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerConversationException;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.ConversationOptions;
-import com.layer.sdk.messaging.Message;
-
-import java.util.List;
 
 public class MessagesListActivity extends BaseActivity {
     private UiState mState;
@@ -36,6 +26,7 @@ public class MessagesListActivity extends BaseActivity {
 //    private AtlasHistoricMessagesFetchLayout mHistoricFetchLayout;
     private RecyclerView mMessagesList;
     private MessagesRecyclerAdapter mMessagesAdapter;
+    private TypingIndicatorListener mTypingIndicatorListener;
 //    private AtlasTypingIndicator mTypingIndicator;
 //    private AtlasMessageComposer mMessageComposer;
 
@@ -94,10 +85,8 @@ public class MessagesListActivity extends BaseActivity {
         mMessagesAdapter = new MessagesRecyclerAdapter(this, getLayerClient(), getParticipantProvider());
         mMessagesList.setAdapter(mMessagesAdapter);
 
-
-
-
-
+        TextView typingIndicatorView = (TextView) findViewById(R.id.typing_indicator);
+        mTypingIndicatorListener = new TypingIndicatorListener(typingIndicatorView, getParticipantProvider());
 
 //        mAddressBar = ((AtlasAddressBar) findViewById(R.id.conversation_launcher))
 //                .init(getLayerClient(), getParticipantProvider(), getPicasso())
@@ -247,6 +236,7 @@ public class MessagesListActivity extends BaseActivity {
         PushNotificationReceiver.getNotifications(this).clear(mConversation);
         super.onResume();
         setTitle(mConversation != null);
+        getLayerClient().registerTypingIndicator(mTypingIndicatorListener);
     }
 
     @Override
@@ -254,6 +244,7 @@ public class MessagesListActivity extends BaseActivity {
         // Update the notification position to the latest seen
         PushNotificationReceiver.getNotifications(this).clear(mConversation);
         super.onPause();
+        getLayerClient().unregisterTypingIndicator(mTypingIndicatorListener);
     }
 
     public void setTitle(boolean useConversation) {

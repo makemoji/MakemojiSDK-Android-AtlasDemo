@@ -75,4 +75,10 @@
 
     <string name="notifications_num_more">+%1$d more</string>
     <string name="notifications_new_messages">%1$s new messages</string>
+
+    <string name="message_compose_hint">Message</string>
+    <string name="message_compose_send">Send</string>
+
+    <string name="typing_indicator_format">%s is typing...</string>
+
 </resources>
