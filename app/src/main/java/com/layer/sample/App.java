@@ -6,6 +6,7 @@ import android.content.Context;
 
 import com.layer.sample.util.AuthenticationProvider;
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.listeners.LayerAuthenticationListener;
 
 /**
  * App provides static access to a LayerClient and other Atlas and Messenger context, including
@@ -91,28 +92,13 @@ public class App extends Application {
         client.authenticate();
     }
 
-    // TODO deauthenticate callback
-    /**
-     * Deauthenticates with Layer and clears cached AuthenticationProvider credentials.
-     *
-     * @param callback Callback to receive deauthentication success and failure.
-     */
-//    public static void deauthenticate(final Util.DeauthenticationCallback callback) {
-//        Util.deauthenticate(getLayerClient(), new Util.DeauthenticationCallback() {
-//            @Override
-//            @SuppressWarnings("unchecked")
-//            public void onDeauthenticationSuccess(LayerClient client) {
-//                getAuthenticationProvider().setCredentials(null);
-//                callback.onDeauthenticationSuccess(client);
-//            }
-//
-//            @Override
-//            public void onDeauthenticationFailed(LayerClient client, String reason) {
-//                callback.onDeauthenticationFailed(client, reason);
-//            }
-//        });
-//    }
-
+    public static void deauthenticate(LayerAuthenticationListener deauthenticationListener) {
+        LayerClient client = getLayerClient();
+        if (client != null) {
+            client.registerAuthenticationListener(deauthenticationListener);
+            client.deauthenticate();
+        }
+    }
 
     //==============================================================================================
     // Getters / Setters
@@ -130,16 +116,8 @@ public class App extends Application {
         if (sLayerClient == null) {
             // Custom options for constructing a LayerClient
             LayerClient.Options options = new LayerClient.Options()
-
                     /* Fetch the minimum amount per conversation when first authenticated */
                     .historicSyncPolicy(LayerClient.Options.HistoricSyncPolicy.FROM_LAST_MESSAGE);
-
-                    // TODO auto download
-                    /* Automatically download text and ThreePartImage info/preview */
-//                    .autoDownloadMimeTypes(Arrays.asList(
-//                            TextCellFactory.MIME_TYPE,
-//                            ThreePartImageUtils.MIME_TYPE_INFO,
-//                            ThreePartImageUtils.MIME_TYPE_PREVIEW));
 
             // Allow flavor to specify Layer App ID and customize Options.
             sLayerClient = sFlavor.generateLayerClient(sInstance, options);

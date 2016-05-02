@@ -114,28 +114,7 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
                                 progressDialog.setMessage(getResources().getString(R.string.alert_dialog_logout));
                                 progressDialog.setCancelable(false);
                                 progressDialog.show();
-                                // TODO logout
-//                                App.deauthenticate(new Util.DeauthenticationCallback() {
-//                                    @Override
-//                                    public void onDeauthenticationSuccess(LayerClient client) {
-//                                        if (Log.isLoggable(Log.VERBOSE)) {
-//                                            Log.v("Successfully deauthenticated");
-//                                        }
-//                                        progressDialog.dismiss();
-//                                        setEnabled(true);
-//                                        App.routeLogin(AppSettingsActivity.this);
-//                                    }
-//
-//                                    @Override
-//                                    public void onDeauthenticationFailed(LayerClient client, String reason) {
-//                                        if (Log.isLoggable(Log.ERROR)) {
-//                                            Log.e("Failed to deauthenticate: " + reason);
-//                                        }
-//                                        progressDialog.dismiss();
-//                                        setEnabled(true);
-//                                        Toast.makeText(AppSettingsActivity.this, getString(R.string.toast_failed_to_deauthenticate, reason), Toast.LENGTH_SHORT).show();
-//                                    }
-//                                });
+                                App.deauthenticate(new DeauthenticationListener(progressDialog));
                             }
                         })
                         .setNegativeButton(R.string.alert_button_cancel, new DialogInterface.OnClickListener() {
@@ -200,7 +179,6 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
 
         /* Account */
         Participant participant = getParticipantProvider().getParticipant(getLayerClient().getAuthenticatedUserId());
-//        mAvatar.setParticipants(getLayerClient().getAuthenticatedUserId());
         mUserName.setText(participant.getName());
         mUserState.setText(getLayerClient().isConnected() ? R.string.settings_content_connected : R.string.settings_content_disconnected);
 
@@ -313,5 +291,45 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
             return true;
         }
         return false;
+    }
+
+    private class DeauthenticationListener implements LayerAuthenticationListener {
+        private final ProgressDialog progressDialog;
+
+        public DeauthenticationListener(ProgressDialog progressDialog) {
+            this.progressDialog = progressDialog;
+        }
+
+        @Override
+        public void onAuthenticated(LayerClient layerClient, String s) {
+        }
+
+        @Override
+        public void onDeauthenticated(LayerClient layerClient) {
+            if (Log.isLoggable(Log.VERBOSE)) {
+                Log.v("Successfully deauthenticated");
+            }
+            progressDialog.dismiss();
+            setEnabled(true);
+            layerClient.unregisterAuthenticationListener(this);
+            App.getAuthenticationProvider().setCredentials(null);
+            App.routeLogin(AppSettingsActivity.this);
+        }
+
+        @Override
+        public void onAuthenticationChallenge(LayerClient layerClient, String s) {
+        }
+
+        @Override
+        public void onAuthenticationError(LayerClient layerClient, LayerException e) {
+            if (Log.isLoggable(Log.ERROR)) {
+                Log.e("Failed to deauthenticate: " + e.getMessage());
+            }
+            progressDialog.dismiss();
+            setEnabled(true);
+            layerClient.unregisterAuthenticationListener(this);
+            Toast.makeText(AppSettingsActivity.this, getString(R.string.toast_failed_to_deauthenticate, e.getMessage()), Toast.LENGTH_SHORT).show();
+
+        }
     }
 }
