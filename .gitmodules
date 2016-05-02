@@ -1,4 +1,4 @@
 [submodule "Atlas-Android"]
 	path = Atlas-Android
-	url = git@github.com:layerhq/Atlas-Android.git
+	url = https://github.com:layerhq/Atlas-Android.git
 	branch = master
