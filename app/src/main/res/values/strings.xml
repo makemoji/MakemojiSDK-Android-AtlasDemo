@@ -61,7 +61,6 @@
     <string name="settings_switch_verbose_logging">Verbose Logging</string>
     <string name="settings_title_app_version">App Version</string>
     <string name="settings_title_android_version">Android Version</string>
-    <string name="settings_title_atlas_version">Atlas Version</string>
     <string name="settings_title_layer_version">Layer Version</string>
     <string name="settings_title_user_id">User ID</string>
     <string name="settings_title_statistics">Statistics</string>

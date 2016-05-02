@@ -63,7 +63,6 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message = mQueryController.getItem(position);
 
-        // Set participant name
         String userId = message.getSender().getUserId();
         Participant fromParticipant = mParticipantProvider.getParticipant(userId);
         boolean isSelf = userId.equals(mAuthenticatedUserId);
@@ -76,9 +75,7 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
             holder.setStatusText(getDateText(message));
         }
 
-        // Set message
         holder.setMessage(MessageUtils.getMessageText(message));
-
     }
 
     @Nullable

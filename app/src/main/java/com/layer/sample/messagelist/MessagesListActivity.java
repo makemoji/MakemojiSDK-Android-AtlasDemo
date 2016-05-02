@@ -3,6 +3,7 @@ package com.layer.sample.messagelist;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -42,8 +43,8 @@ public class MessagesListActivity extends BaseActivity {
     private TypingIndicatorListener mTypingIndicatorListener;
     private EditText mMessageEntry;
     private Button mSendButton;
-//    private AtlasTypingIndicator mTypingIndicator;
-//    private AtlasMessageComposer mMessageComposer;
+    private SwipeRefreshLayout mMessagesRefreshLayout;
+    private MessageRefreshListener mMessagesRefreshListener;
 
     public MessagesListActivity() {
         super(R.layout.activity_messages_list, R.menu.menu_messages_list, R.string.title_select_conversation, true);
@@ -56,7 +57,6 @@ public class MessagesListActivity extends BaseActivity {
             if (!isFinishing()) finish();
             return;
         }
-
 
         initializeUi();
 
@@ -198,8 +198,46 @@ public class MessagesListActivity extends BaseActivity {
         }
         setConversation(conversation, conversation != null);
 
+        mMessagesRefreshListener = new MessageRefreshListener(mConversation, mMessagesRefreshLayout);
+        mMessagesRefreshLayout.setOnRefreshListener(mMessagesRefreshListener);
 
         fetchMessages();
+    }
+
+    @Override
+    protected void onResume() {
+        // Clear any notifications for this conversation
+        PushNotificationReceiver.getNotifications(this).clear(mConversation);
+        super.onResume();
+        setTitle(mConversation != null);
+        getLayerClient().registerTypingIndicator(mTypingIndicatorListener);
+        mMessagesRefreshListener.registerLayerListener(getLayerClient());
+    }
+
+    @Override
+    protected void onPause() {
+        // Update the notification position to the latest seen
+        PushNotificationReceiver.getNotifications(this).clear(mConversation);
+        super.onPause();
+        getLayerClient().unregisterTypingIndicator(mTypingIndicatorListener);
+        mMessagesRefreshListener.unregisterLayerListener(getLayerClient());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_details:
+                if (mConversation == null) return true;
+                Intent intent = new Intent(this, ConversationSettingsActivity.class);
+                intent.putExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY, mConversation.getId());
+                startActivity(intent);
+                return true;
+
+            case R.id.action_sendlogs:
+                LayerClient.sendLogs(getLayerClient(), this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initializeUi() {
@@ -213,6 +251,8 @@ public class MessagesListActivity extends BaseActivity {
     private void initializeMessagesAdapter() {
         mMessagesAdapter = new MessagesRecyclerAdapter(this, getLayerClient(), getParticipantProvider());
         mMessagesAdapter.setMessageAppenedListener(new ScrollOnMessageAppendedListener());
+
+        mMessagesRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
     }
 
     private void initializeMessagesList() {
@@ -235,40 +275,6 @@ public class MessagesListActivity extends BaseActivity {
 
     private void initializeSendButton() {
         mSendButton = (Button) findViewById(R.id.send_button);
-    }
-
-    @Override
-    protected void onResume() {
-        // Clear any notifications for this conversation
-        PushNotificationReceiver.getNotifications(this).clear(mConversation);
-        super.onResume();
-        setTitle(mConversation != null);
-        getLayerClient().registerTypingIndicator(mTypingIndicatorListener);
-    }
-
-    @Override
-    protected void onPause() {
-        // Update the notification position to the latest seen
-        PushNotificationReceiver.getNotifications(this).clear(mConversation);
-        super.onPause();
-        getLayerClient().unregisterTypingIndicator(mTypingIndicatorListener);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_details:
-                if (mConversation == null) return true;
-                Intent intent = new Intent(this, ConversationSettingsActivity.class);
-                intent.putExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY, mConversation.getId());
-                startActivity(intent);
-                return true;
-
-            case R.id.action_sendlogs:
-                LayerClient.sendLogs(getLayerClient(), this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public void setTitle(boolean useConversation) {

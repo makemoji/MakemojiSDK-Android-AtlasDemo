@@ -30,8 +30,6 @@ public class ConversationsListActivity extends BaseActivity {
 
         setUpFab();
         setUpRecyclerViewAndAdapter();
-
-        // TODO Fetch historic messages? Atlas sets this to 20
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -52,7 +50,7 @@ public class ConversationsListActivity extends BaseActivity {
         conversationsList.addItemDecoration(new DividerItemDecoration(this));
 
         LayerClient layerClient = getLayerClient();
-        ConversationRecyclerAdapter conversationsAdapter = new ConversationRecyclerAdapter(this, layerClient, getParticipantProvider());
+        ConversationRecyclerAdapter conversationsAdapter = new ConversationRecyclerAdapter(layerClient, getParticipantProvider());
         conversationsList.setAdapter(conversationsAdapter);
     }
 
