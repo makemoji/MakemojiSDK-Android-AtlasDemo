@@ -1,6 +1,7 @@
 package com.layer.sample.messagelist;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -69,20 +70,37 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         holder.setIsUsersMessage(isSelf);
         if (isSelf) {
             holder.setParticipantName(null);
+            holder.setStatusText(getDateWithStatusText(message));
         } else {
             holder.setParticipantName(fromParticipant.getName());
+            holder.setStatusText(getDateText(message));
         }
 
         // Set message
         holder.setMessage(MessageUtils.getMessageText(message));
 
-        setStatusText(holder, message);
     }
 
-    private void setStatusText(MessageViewHolder holder, Message message) {
-        // Set date
+    @Nullable
+    private String getDateWithStatusText(Message message) {
+        CharSequence formattedTime = getDateText(message);
+        String status = getMessageStatus(message);
+
+        if (formattedTime != null && status != null) {
+            return formattedTime + " - " + status;
+        } else if (formattedTime != null) {
+            return formattedTime.toString();
+        } else if (status != null) {
+            return status;
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private String getDateText(Message message) {
         Date sentDate = message.getSentAt();
-        CharSequence formattedTime = null;
+        String formattedTime = null;
         if (sentDate != null) {
             int flags = DateUtils.FORMAT_SHOW_TIME;
             if (!DateUtils.isToday(sentDate.getTime())) {
@@ -90,18 +108,7 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
             }
             formattedTime = DateUtils.formatDateTime(mContext, sentDate.getTime(), flags);
         }
-
-        String status = getMessageStatus(message);
-
-        if (formattedTime != null && status != null) {
-            holder.setStatusText(formattedTime + " - " + status);
-        } else if (formattedTime != null) {
-            holder.setStatusText(formattedTime.toString());
-        } else if (status != null) {
-            holder.setStatusText(status);
-        } else {
-            holder.setStatusText(null);
-        }
+        return formattedTime;
     }
 
     private String getMessageStatus(Message message) {
