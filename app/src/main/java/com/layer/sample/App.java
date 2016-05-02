@@ -3,6 +3,7 @@ package com.layer.sample;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.StrictMode;
 
 import com.layer.sample.util.AuthenticationProvider;
 import com.layer.sdk.LayerClient;
@@ -45,6 +46,18 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             com.layer.sample.util.Log.setAlwaysLoggable(true);
             LayerClient.setLoggingEnabled(this, true);
+
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build());
         }
 
         // Allow the LayerClient to track app state
