@@ -2,6 +2,9 @@ package com.layer.sample;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,10 +26,10 @@ import com.layer.sdk.listeners.LayerConnectionListener;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
+import java.util.Locale;
 
 public class AppSettingsActivity extends BaseActivity implements LayerConnectionListener, LayerAuthenticationListener, LayerChangeEventListener, View.OnLongClickListener {
     /* Account */
-//    private AtlasAvatar mAvatar;
     private TextView mUserName;
     private TextView mUserState;
     private Button mLogoutButton;
@@ -38,7 +41,6 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
     private Switch mVerboseLogging;
     private TextView mAppVersion;
     private TextView mAndroidVersion;
-    private TextView mAtlasVersion;
     private TextView mLayerVersion;
     private TextView mUserId;
 
@@ -61,14 +63,12 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
         super.onCreate(savedInstanceState);
 
         // View cache
-//        mAvatar = (AtlasAvatar) findViewById(R.id.avatar);
         mUserName = (TextView) findViewById(R.id.user_name);
         mUserState = (TextView) findViewById(R.id.user_state);
         mLogoutButton = (Button) findViewById(R.id.logout_button);
         mShowNotifications = (Switch) findViewById(R.id.show_notifications_switch);
         mVerboseLogging = (Switch) findViewById(R.id.logging_switch);
         mAppVersion = (TextView) findViewById(R.id.app_version);
-        mAtlasVersion = (TextView) findViewById(R.id.atlas_version);
         mLayerVersion = (TextView) findViewById(R.id.layer_version);
         mAndroidVersion = (TextView) findViewById(R.id.android_version);
         mUserId = (TextView) findViewById(R.id.user_id);
@@ -78,14 +78,12 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
         mDiskUtilization = (TextView) findViewById(R.id.disk_utilization);
         mDiskAllowance = (TextView) findViewById(R.id.disk_allowance);
         mAutoDownloadMimeTypes = (TextView) findViewById(R.id.auto_download_mime_types);
-//        mAvatar.init(getParticipantProvider(), getPicasso());
 
         // Long-click copy-to-clipboard
         mUserName.setOnLongClickListener(this);
         mUserState.setOnLongClickListener(this);
         mAppVersion.setOnLongClickListener(this);
         mAndroidVersion.setOnLongClickListener(this);
-        mAtlasVersion.setOnLongClickListener(this);
         mLayerVersion.setOnLongClickListener(this);
         mUserId.setOnLongClickListener(this);
         mConversationCount.setOnLongClickListener(this);
@@ -203,9 +201,9 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
             totalMessages += conversation.getTotalMessageCount();
             totalUnread += conversation.getTotalUnreadMessageCount();
         }
-        mConversationCount.setText(String.format("%d", conversations.size()));
-        mMessageCount.setText(String.format("%d", totalMessages));
-        mUnreadMessageCount.setText(String.format("%d", totalUnread));
+        mConversationCount.setText(String.format(Locale.getDefault(), "%d", conversations.size()));
+        mMessageCount.setText(String.format(Locale.getDefault(), "%d", totalMessages));
+        mUnreadMessageCount.setText(String.format(Locale.getDefault(), "%d", totalUnread));
 
         /* Rich Content */
         mDiskUtilization.setText(readableByteFormat(getLayerClient().getDiskUtilization()));
@@ -285,9 +283,12 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
     @Override
     public boolean onLongClick(View v) {
         if (v instanceof TextView) {
-            // TODO copy to clipboard?
-//            Util.copyToClipboard(v.getContext(), R.string.settings_clipboard_description, ((TextView) v).getText().toString());
-//            Toast.makeText(this, R.string.toast_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+            CharSequence content = ((TextView) v).getText();
+            String description = getString(R.string.settings_clipboard_description);
+            ClipboardManager manager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clipData = new ClipData(description, new String[]{"text/plain"}, new ClipData.Item(content));
+            manager.setPrimaryClip(clipData);
+            Toast.makeText(this, R.string.toast_copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;
