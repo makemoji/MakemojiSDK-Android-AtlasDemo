@@ -3,9 +3,7 @@ package com.layer.sample;
 import java.util.Map;
 
 /**
- * ParticipantProvider provides Atlas classes with Participant data.
- *
- * TODO copied from Atlas code. Need to figure out if we should keep or refactor
+ * ParticipantProvider provides classes with Participant data.
  */
 public interface ParticipantProvider {
     /**

@@ -16,7 +16,7 @@ import com.layer.sample.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DemoAtlasIdScannerActivity extends AppCompatActivity {
+public class DemoScannerActivity extends AppCompatActivity {
     private static final String PERMISSION = Manifest.permission.CAMERA;
     public static final int PERMISSION_REQUEST_CODE = 21;
 
@@ -71,7 +71,7 @@ public class DemoAtlasIdScannerActivity extends AppCompatActivity {
                         Log.v("Found App ID: " + layerAppId);
                     }
                     Flavor.setLayerAppId(layerAppId);
-                    Intent intent = new Intent(DemoAtlasIdScannerActivity.this, DemoLoginActivity.class);
+                    Intent intent = new Intent(DemoScannerActivity.this, DemoLoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     if (!isFinishing()) finish();

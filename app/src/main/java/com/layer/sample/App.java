@@ -10,12 +10,12 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerAuthenticationListener;
 
 /**
- * App provides static access to a LayerClient and other Atlas and Messenger context, including
- * AuthenticationProvider, ParticipantProvider, Participant, and Picasso.
+ * App provides static access to a LayerClient. It also provides an AuthenticationProvider and
+ * ParticipantProvider to use with the LayerClient.
  *
- * App.Flavor allows build variants to target different environments, such as the Atlas Demo and the
+ * App.Flavor allows build variants to target different environments, such as the standard Demo and the
  * open source Rails Identity Provider.  Switch flavors with the Android Studio `Build Variant` tab.
- * When using a flavor besides the Atlas Demo you must manually set your Layer App ID and GCM Sender
+ * When using a flavor besides the Demo you must manually set your Layer App ID and GCM Sender
  * ID in that flavor's Flavor.java.
  *
  * @see com.layer.sample.App.Flavor
@@ -167,7 +167,7 @@ public class App extends Application {
     }
 
     /**
-     * Flavor is used by Atlas Messenger to switch environments.
+     * Flavor is used to switch environments.
      *
      * @see com.layer.sample.flavor.Flavor
      */

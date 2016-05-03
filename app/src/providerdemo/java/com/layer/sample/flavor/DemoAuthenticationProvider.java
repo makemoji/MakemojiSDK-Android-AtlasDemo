@@ -88,7 +88,7 @@ public class DemoAuthenticationProvider implements AuthenticationProvider<DemoAu
         if (layerAppId == null) {
             // No App ID: must scan from QR code.
             if (Log.isLoggable(Log.VERBOSE)) Log.v("Routing to QR Code scanning Activity");
-            Intent intent = new Intent(from, DemoAtlasIdScannerActivity.class);
+            Intent intent = new Intent(from, DemoScannerActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             from.startActivity(intent);
             return true;

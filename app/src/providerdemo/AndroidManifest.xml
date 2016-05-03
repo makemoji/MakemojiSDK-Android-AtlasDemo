@@ -7,12 +7,12 @@
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application>
-        <!-- Atlas Demo Identity Provider (QR Code) -->
+        <!-- Demo Identity Provider (QR Code) -->
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode"/>
 
-        <activity android:name=".flavor.DemoAtlasIdScannerActivity"/>
+        <activity android:name=".flavor.DemoScannerActivity"/>
         <activity
             android:name=".flavor.DemoLoginActivity"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize"/>

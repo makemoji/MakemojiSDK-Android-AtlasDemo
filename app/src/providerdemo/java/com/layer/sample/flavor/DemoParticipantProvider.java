@@ -51,7 +51,7 @@ public class DemoParticipantProvider implements ParticipantProvider {
 
 
     //==============================================================================================
-    // Atlas ParticipantProvider
+    // Sample ParticipantProvider
     //==============================================================================================
 
     @Override
