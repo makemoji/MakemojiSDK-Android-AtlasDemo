@@ -295,7 +295,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                     .setContentTitle(conversationTitle)
                     .setContentText(collapsedSummary)
                     .setAutoCancel(true)
-                    .setLights(ContextCompat.getColor(context, R.color.action_bar_background), 100, 1900)
+                    .setLights(ContextCompat.getColor(context, R.color.colorPrimary), 100, 1900)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE)
                     .setStyle(inboxStyle);

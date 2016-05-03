@@ -1,11 +1,11 @@
 package com.layer.sample.util;
 
 /**
- * Unified Log class used by Atlas Messenger classes that maintains similar signatures to
- * `android.util.Log`. Logs are tagged with `Atlas`.
+ * Unified Log class used by classes that maintains similar signatures to
+ * `android.util.Log`. Logs are tagged with `LayerSample`.
  */
 public class Log {
-    public static final String TAG = "LayerAtlasMsgr";
+    public static final String TAG = "LayerSample";
 
     // Makes IDE auto-completion easy
     public static final int VERBOSE = android.util.Log.VERBOSE;

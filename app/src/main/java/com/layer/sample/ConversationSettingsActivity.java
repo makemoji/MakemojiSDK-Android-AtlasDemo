@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
     private EditText mConversationName;
     private Switch mShowNotifications;
     private Button mLeaveButton;
+    private RecyclerView mParticipantRecyclerView;
 
     private Conversation mConversation;
     private ParticipantAdapter mParticipantAdapter;
@@ -52,7 +54,7 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
         super.onCreate(savedInstanceState);
         mConversationName = (EditText) findViewById(R.id.conversation_name);
         mShowNotifications = (Switch) findViewById(R.id.show_notifications_switch);
-        RecyclerView mParticipantRecyclerView = (RecyclerView) findViewById(R.id.participants);
+        mParticipantRecyclerView = (RecyclerView) findViewById(R.id.participants);
         mLeaveButton = (Button) findViewById(R.id.leave_button);
 
         // Get Conversation from Intent extras
@@ -170,10 +172,10 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
             }
             Collections.sort(mParticipants);
 
-//            // Adjust participant container height
-//            int height = Math.round(mParticipants.size() * getResources().getDimensionPixelSize(com.layer.atlas.R.dimen.atlas_secondary_item_height));
-//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
-//            mParticipantRecyclerView.setLayoutParams(params);
+            // Adjust participant container height
+            int height = Math.round(mParticipants.size() * getResources().getDimensionPixelSize(R.dimen.secondary_item_height));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+            mParticipantRecyclerView.setLayoutParams(params);
 
             // Notify changes
             notifyDataSetChanged();
