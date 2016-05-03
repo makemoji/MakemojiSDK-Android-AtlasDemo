@@ -34,11 +34,7 @@ public class MessagesListActivity extends BaseActivity {
     public static final String EXTRA_KEY_PARTICIPANT_IDS = "participantIds";
 
     private static final int MAX_NOTIFICATION_LENGTH = 200;
-    private UiState mState;
-    private Conversation mConversation;
 
-//    private AtlasAddressBar mAddressBar;
-//    private AtlasHistoricMessagesFetchLayout mHistoricFetchLayout;
     private RecyclerView mMessagesList;
     private LinearLayoutManager mMessagesListLayoutManager;
     private MessagesRecyclerAdapter mMessagesAdapter;
@@ -46,7 +42,9 @@ public class MessagesListActivity extends BaseActivity {
     private EditText mMessageEntry;
     private Button mSendButton;
     private SwipeRefreshLayout mMessagesRefreshLayout;
+
     private MessageRefreshListener mMessagesRefreshListener;
+    private Conversation mConversation;
 
     public MessagesListActivity() {
         super(R.layout.activity_messages_list, R.menu.menu_messages_list, R.string.title_select_conversation, true);
@@ -62,128 +60,6 @@ public class MessagesListActivity extends BaseActivity {
 
         initializeUi();
 
-//        mAddressBar = ((AtlasAddressBar) findViewById(R.id.conversation_launcher))
-//                .init(getLayerClient(), getParticipantProvider(), getPicasso())
-//                .setOnConversationClickListener(new AtlasAddressBar.OnConversationClickListener() {
-//                    @Override
-//                    public void onConversationClick(AtlasAddressBar addressBar, Conversation conversation) {
-//                        setConversation(conversation, true);
-//                        setTitle(true);
-//                    }
-//                })
-//                .setOnParticipantSelectionChangeListener(new AtlasAddressBar.OnParticipantSelectionChangeListener() {
-//                    @Override
-//                    public void onParticipantSelectionChanged(AtlasAddressBar addressBar, final List<String> participantIds) {
-//                        if (participantIds.isEmpty()) {
-//                            setConversation(null, false);
-//                            return;
-//                        }
-//                        try {
-//                            setConversation(getLayerClient().newConversation(new ConversationOptions().distinct(true), participantIds), false);
-//                        } catch (LayerConversationException e) {
-//                            setConversation(e.getConversation(), false);
-//                        }
-//                    }
-//                })
-//                .addTextChangedListener(new TextWatcher() {
-//                    @Override
-//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//                    }
-//
-//                    @Override
-//                    public void afterTextChanged(Editable s) {
-//                        if (mState == UiState.ADDRESS_CONVERSATION_COMPOSER) {
-//                            mAddressBar.setSuggestionsVisibility(s.toString().isEmpty() ? View.GONE : View.VISIBLE);
-//                        }
-//                    }
-//                })
-//                .setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//                    @Override
-//                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                        if (actionId == EditorInfo.IME_ACTION_DONE || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-//                            setUiState(UiState.CONVERSATION_COMPOSER);
-//                            setTitle(true);
-//                            return true;
-//                        }
-//                        return false;
-//                    }
-//                });
-//
-//        mHistoricFetchLayout = ((AtlasHistoricMessagesFetchLayout) findViewById(R.id.historic_sync_layout))
-//                .init(getLayerClient())
-//                .setHistoricMessagesPerFetch(20);
-//
-//        mMessagesList = ((AtlasMessagesRecyclerView) findViewById(R.id.messages_list))
-//                .init(getLayerClient(), getParticipantProvider(), getPicasso())
-//                .addCellFactories(
-//                        new TextCellFactory(),
-//                        new ThreePartImageCellFactory(this, getLayerClient(), getPicasso()),
-//                        new LocationCellFactory(this, getPicasso()),
-//                        new SinglePartImageCellFactory(this, getLayerClient(), getPicasso()),
-//                        new GenericCellFactory())
-//                .setOnMessageSwipeListener(new SwipeableItem.OnSwipeListener<Message>() {
-//                    @Override
-//                    public void onSwipe(final Message message, int direction) {
-//                        new AlertDialog.Builder(MessagesListActivity.this)
-//                                .setMessage(R.string.alert_message_delete_message)
-//                                .setNegativeButton(R.string.alert_button_cancel, new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        // TODO: simply update this one message
-//                                        mMessagesList.getAdapter().notifyDataSetChanged();
-//                                        dialog.dismiss();
-//                                    }
-//                                })
-//                                .setNeutralButton(R.string.alert_button_delete_my_devices, new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        message.delete(LayerClient.DeletionMode.ALL_MY_DEVICES);
-//                                    }
-//                                })
-//                                .setPositiveButton(R.string.alert_button_delete_all_participants, new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        message.delete(LayerClient.DeletionMode.ALL_PARTICIPANTS);
-//                                    }
-//                                })
-//                                .show();
-//                    }
-//                });
-//
-//        mTypingIndicator = new AtlasTypingIndicator(this)
-//                .init(getLayerClient())
-//                .setTypingIndicatorFactory(new BubbleTypingIndicatorFactory())
-//                .setTypingActivityListener(new AtlasTypingIndicator.TypingActivityListener() {
-//                    @Override
-//                    public void onTypingActivityChange(AtlasTypingIndicator typingIndicator, boolean active) {
-//                        mMessagesList.setFooterView(active ? typingIndicator : null);
-//                    }
-//                });
-//
-//        mMessageComposer = ((AtlasMessageComposer) findViewById(R.id.message_composer))
-//                .init(getLayerClient(), getParticipantProvider())
-//                .setTextSender(new TextSender())
-//                .addAttachmentSenders(
-//                        new CameraSender(R.string.attachment_menu_camera, R.drawable.ic_photo_camera_white_24dp, this),
-//                        new GallerySender(R.string.attachment_menu_gallery, R.drawable.ic_photo_white_24dp, this),
-//                        new LocationSender(R.string.attachment_menu_location, R.drawable.ic_place_white_24dp, this))
-//                .setOnMessageEditTextFocusChangeListener(new View.OnFocusChangeListener() {
-//                    @Override
-//                    public void onFocusChange(View v, boolean hasFocus) {
-//                        if (hasFocus) {
-//                            setUiState(UiState.CONVERSATION_COMPOSER);
-//                            setTitle(true);
-//                        }
-//                    }
-//                });
-
-
         // Get or create Conversation from Intent extras
         Conversation conversation = null;
         Intent intent = getIntent();
@@ -198,7 +74,7 @@ public class MessagesListActivity extends BaseActivity {
                 conversation = e.getConversation();
             }
         }
-        setConversation(conversation, conversation != null);
+        setConversation(conversation);
 
         mMessagesRefreshListener = new MessageRefreshListener(mConversation, mMessagesRefreshLayout);
         mMessagesRefreshLayout.setOnRefreshListener(mMessagesRefreshListener);
@@ -287,31 +163,8 @@ public class MessagesListActivity extends BaseActivity {
         }
     }
 
-    private void setConversation(Conversation conversation, boolean hideLauncher) {
+    private void setConversation(Conversation conversation) {
         mConversation = conversation;
-
-//        mHistoricFetchLayout.setConversation(conversation);
-//        mMessagesList.setConversation(conversation);
-//        mTypingIndicator.setConversation(conversation);
-//        mMessageComposer.setConversation(conversation);
-//
-//        // UI state
-//        if (conversation == null) {
-//            setUiState(UiState.ADDRESS);
-//            return;
-//        }
-//
-//        if (hideLauncher) {
-//            setUiState(UiState.CONVERSATION_COMPOSER);
-//            return;
-//        }
-//
-//        if (conversation.getHistoricSyncStatus() == Conversation.HistoricSyncStatus.INVALID) {
-//            // New "temporary" conversation
-//            setUiState(UiState.ADDRESS_COMPOSER);
-//        } else {
-//            setUiState(UiState.ADDRESS_CONVERSATION_COMPOSER);
-//        }
     }
 
     private void fetchMessages() {
@@ -344,47 +197,6 @@ public class MessagesListActivity extends BaseActivity {
         int visible = mMessagesListLayoutManager.findLastVisibleItemPosition();
         // -3 because -1 seems too finicky
         if (visible >= (end - 3)) mMessagesList.scrollToPosition(end);
-    }
-
-    private void setUiState(UiState state) {
-//        if (mState == state) return;
-//        mState = state;
-//        switch (state) {
-//            case ADDRESS:
-//                mAddressBar.setVisibility(View.VISIBLE);
-//                mAddressBar.setSuggestionsVisibility(View.VISIBLE);
-//                mHistoricFetchLayout.setVisibility(View.GONE);
-//                mMessageComposer.setVisibility(View.GONE);
-//                break;
-//
-//            case ADDRESS_COMPOSER:
-//                mAddressBar.setVisibility(View.VISIBLE);
-//                mAddressBar.setSuggestionsVisibility(View.VISIBLE);
-//                mHistoricFetchLayout.setVisibility(View.GONE);
-//                mMessageComposer.setVisibility(View.VISIBLE);
-//                break;
-//
-//            case ADDRESS_CONVERSATION_COMPOSER:
-//                mAddressBar.setVisibility(View.VISIBLE);
-//                mAddressBar.setSuggestionsVisibility(View.GONE);
-//                mHistoricFetchLayout.setVisibility(View.VISIBLE);
-//                mMessageComposer.setVisibility(View.VISIBLE);
-//                break;
-//
-//            case CONVERSATION_COMPOSER:
-//                mAddressBar.setVisibility(View.GONE);
-//                mAddressBar.setSuggestionsVisibility(View.GONE);
-//                mHistoricFetchLayout.setVisibility(View.VISIBLE);
-//                mMessageComposer.setVisibility(View.VISIBLE);
-//                break;
-//        }
-    }
-
-    private enum UiState {
-        ADDRESS,
-        ADDRESS_COMPOSER,
-        ADDRESS_CONVERSATION_COMPOSER,
-        CONVERSATION_COMPOSER
     }
 
     private class MessageTextWatcher implements TextWatcher {

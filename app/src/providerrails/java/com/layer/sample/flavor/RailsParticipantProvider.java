@@ -48,7 +48,7 @@ public class RailsParticipantProvider implements ParticipantProvider {
     }
 
     //==============================================================================================
-    // Atlas ParticipantProvider
+    // ParticipantProvider
     //==============================================================================================
 
     @Override
