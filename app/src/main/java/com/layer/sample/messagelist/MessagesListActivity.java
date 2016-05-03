@@ -19,6 +19,7 @@ import com.layer.sample.BaseActivity;
 import com.layer.sample.ConversationSettingsActivity;
 import com.layer.sample.PushNotificationReceiver;
 import com.layer.sample.R;
+import com.layer.sample.util.ConversationUtils;
 import com.layer.sample.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerConversationException;
@@ -281,7 +282,7 @@ public class MessagesListActivity extends BaseActivity {
         if (!useConversation) {
             setTitle(R.string.title_select_conversation);
         } else {
-//            setTitle(Util.getConversationTitle(getLayerClient(), getParticipantProvider(), mConversation));
+            setTitle(ConversationUtils.getConversationTitle(getLayerClient(), getParticipantProvider(), mConversation));
         }
     }
 

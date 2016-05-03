@@ -97,17 +97,5 @@
             android:id="@+id/participants"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
-        <Button
-            android:id="@+id/add_participant_button"
-            style="?android:attr/buttonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:text="@string/conversation_details_button_add_participants"
-            android:visibility="gone"
-            />
     </LinearLayout>
 </ScrollView>

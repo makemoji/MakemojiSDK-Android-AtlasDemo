@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.sample.conversationlist.ConversationsListActivity;
+import com.layer.sample.util.ConversationUtils;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
@@ -37,9 +38,7 @@ import java.util.Set;
 public class ConversationSettingsActivity extends BaseActivity implements LayerPolicyListener, LayerChangeEventListener {
     private EditText mConversationName;
     private Switch mShowNotifications;
-    private RecyclerView mParticipantRecyclerView;
     private Button mLeaveButton;
-    private Button mAddParticipantsButton;
 
     private Conversation mConversation;
     private ParticipantAdapter mParticipantAdapter;
@@ -53,9 +52,8 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
         super.onCreate(savedInstanceState);
         mConversationName = (EditText) findViewById(R.id.conversation_name);
         mShowNotifications = (Switch) findViewById(R.id.show_notifications_switch);
-        mParticipantRecyclerView = (RecyclerView) findViewById(R.id.participants);
+        RecyclerView mParticipantRecyclerView = (RecyclerView) findViewById(R.id.participants);
         mLeaveButton = (Button) findViewById(R.id.leave_button);
-        mAddParticipantsButton = (Button) findViewById(R.id.add_participant_button);
 
         // Get Conversation from Intent extras
         Uri conversationId = getIntent().getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
@@ -73,7 +71,7 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                     String title = ((EditText) v).getText().toString().trim();
-//                    Util.setConversationMetadataTitle(mConversation, title);
+                    ConversationUtils.setConversationMetadataTitle(mConversation, title);
                     Toast.makeText(v.getContext(), R.string.toast_group_name_updated, Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -101,14 +99,6 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
                 ConversationSettingsActivity.this.startActivity(intent);
             }
         });
-
-        mAddParticipantsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO
-                Toast.makeText(v.getContext(), "Coming soon", Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     public void setEnabled(boolean enabled) {
@@ -119,7 +109,7 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
     private void refresh() {
         if (!getLayerClient().isAuthenticated()) return;
 
-//        mConversationName.setText(Util.getConversationMetadataTitle(mConversation));
+        mConversationName.setText(ConversationUtils.getConversationMetadataTitle(mConversation));
         mShowNotifications.setChecked(PushNotificationReceiver.getNotifications(this).isEnabled(mConversation.getId()));
 
         Set<String> participantsMinusMe = new HashSet<String>(mConversation.getParticipants());
@@ -192,7 +182,6 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
         @Override
         public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
             ViewHolder viewHolder = new ViewHolder(parent);
-//            viewHolder.mAvatar.init(App.getParticipantProvider(), App.getPicasso());
             viewHolder.itemView.setTag(viewHolder);
 
             // Click to display remove / block dialog
@@ -245,7 +234,6 @@ public class ConversationSettingsActivity extends BaseActivity implements LayerP
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
             Participant participant = mParticipants.get(position);
             viewHolder.mTitle.setText(participant.getName());
-//            viewHolder.mAvatar.setParticipants(participant.getId());
             viewHolder.mParticipant = participant;
 
             Policy block = null;
