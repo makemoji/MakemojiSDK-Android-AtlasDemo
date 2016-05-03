@@ -12,8 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.sample.App;
-import com.layer.sample.ConversationsListActivity;
 import com.layer.sample.R;
+import com.layer.sample.conversationlist.ConversationsListActivity;
 import com.layer.sample.util.AuthenticationProvider;
 import com.layer.sample.util.Log;
 

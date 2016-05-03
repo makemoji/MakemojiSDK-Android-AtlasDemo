@@ -2,7 +2,7 @@ package com.layer.sample.flavor;
 
 import android.net.Uri;
 
-import com.layer.atlas.provider.Participant;
+import com.layer.sample.Participant;
 
 public class DemoParticipant implements Participant {
     private String mId;

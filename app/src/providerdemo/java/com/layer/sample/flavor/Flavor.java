@@ -2,8 +2,8 @@ package com.layer.sample.flavor;
 
 import android.content.Context;
 
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sample.App;
+import com.layer.sample.ParticipantProvider;
 import com.layer.sample.util.AuthenticationProvider;
 import com.layer.sample.util.Log;
 import com.layer.sdk.LayerClient;

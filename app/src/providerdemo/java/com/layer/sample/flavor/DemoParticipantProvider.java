@@ -4,8 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import com.layer.atlas.provider.Participant;
-import com.layer.atlas.provider.ParticipantProvider;
+import com.layer.sample.Participant;
+import com.layer.sample.ParticipantProvider;
 import com.layer.sample.util.Log;
 
 import org.json.JSONArray;
