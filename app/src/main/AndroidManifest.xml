@@ -33,8 +33,7 @@
         android:icon="@drawable/layer_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme"
-        >
+        android:theme="@style/AppTheme">
 
         <!-- Activity: List of Conversations -->
         <activity android:name=".conversationlist.ConversationsListActivity">
@@ -68,6 +67,9 @@
             android:name=".ResumeActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
+
+        <activity android:name=".SelectParticipantsActivity"/>
+
 
         <!-- Receiver: Our app notification handling -->
         <receiver

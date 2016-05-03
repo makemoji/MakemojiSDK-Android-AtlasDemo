@@ -4,9 +4,11 @@
     <string name="action_settings">Settings</string>
     <string name="action_details">Conversation Details</string>
     <string name="action_sendlogs">Send Debug Info</string>
+    <string name="action_done">Done</string>
 
     <string name="title_conversations_list">Conversations</string>
     <string name="title_select_conversation">New Message</string>
+    <string name="title_select_participants">Select Participants</string>
     <string name="title_messages_list">Messages</string>
     <string name="title_settings">Settings</string>
     <string name="title_conversation_details">Details</string>

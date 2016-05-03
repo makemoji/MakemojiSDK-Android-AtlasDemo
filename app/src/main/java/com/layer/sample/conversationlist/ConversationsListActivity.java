@@ -10,8 +10,8 @@ import android.view.View;
 import com.layer.sample.App;
 import com.layer.sample.AppSettingsActivity;
 import com.layer.sample.BaseActivity;
-import com.layer.sample.messagelist.MessagesListActivity;
 import com.layer.sample.R;
+import com.layer.sample.SelectParticipantsActivity;
 import com.layer.sdk.LayerClient;
 
 public class ConversationsListActivity extends BaseActivity {
@@ -37,7 +37,7 @@ public class ConversationsListActivity extends BaseActivity {
         View floatingActionButton = findViewById(R.id.floating_action_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(ConversationsListActivity.this, MessagesListActivity.class));
+                startActivity(new Intent(ConversationsListActivity.this, SelectParticipantsActivity.class));
             }
         });
     }

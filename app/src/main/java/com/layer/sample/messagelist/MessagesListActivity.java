@@ -31,6 +31,7 @@ import com.layer.sdk.messaging.MessageOptions;
 import com.layer.sdk.messaging.MessagePart;
 
 public class MessagesListActivity extends BaseActivity {
+    public static final String EXTRA_KEY_PARTICIPANT_IDS = "participantIds";
 
     private static final int MAX_NOTIFICATION_LENGTH = 200;
     private UiState mState;
@@ -189,8 +190,8 @@ public class MessagesListActivity extends BaseActivity {
         if (intent.hasExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY)) {
             Uri conversationId = intent.getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
             conversation = getLayerClient().getConversation(conversationId);
-        } else if (intent.hasExtra("participantIds")) {
-            String[] participantIds = intent.getStringArrayExtra("participantIds");
+        } else if (intent.hasExtra(EXTRA_KEY_PARTICIPANT_IDS)) {
+            String[] participantIds = intent.getStringArrayExtra(EXTRA_KEY_PARTICIPANT_IDS);
             try {
                 conversation = getLayerClient().newConversation(new ConversationOptions().distinct(true), participantIds);
             } catch (LayerConversationException e) {
