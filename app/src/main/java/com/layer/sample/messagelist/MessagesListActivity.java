@@ -59,26 +59,8 @@ public class MessagesListActivity extends BaseActivity {
         }
 
         initializeUi();
-
-        // Get or create Conversation from Intent extras
-        Conversation conversation = null;
-        Intent intent = getIntent();
-        if (intent.hasExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY)) {
-            Uri conversationId = intent.getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
-            conversation = getLayerClient().getConversation(conversationId);
-        } else if (intent.hasExtra(EXTRA_KEY_PARTICIPANT_IDS)) {
-            String[] participantIds = intent.getStringArrayExtra(EXTRA_KEY_PARTICIPANT_IDS);
-            try {
-                conversation = getLayerClient().newConversation(new ConversationOptions().distinct(true), participantIds);
-            } catch (LayerConversationException e) {
-                conversation = e.getConversation();
-            }
-        }
-        setConversation(conversation);
-
-        mMessagesRefreshListener = new MessageRefreshListener(mConversation, mMessagesRefreshLayout);
-        mMessagesRefreshLayout.setOnRefreshListener(mMessagesRefreshListener);
-
+        setConversationFromIntent();
+        createAndSetRefreshListener();
         fetchMessages();
     }
 
@@ -155,16 +137,34 @@ public class MessagesListActivity extends BaseActivity {
         mSendButton = (Button) findViewById(R.id.send_button);
     }
 
+    private void setConversationFromIntent() {
+        Conversation conversation = null;
+        Intent intent = getIntent();
+        if (intent.hasExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY)) {
+            Uri conversationId = intent.getParcelableExtra(PushNotificationReceiver.LAYER_CONVERSATION_KEY);
+            conversation = getLayerClient().getConversation(conversationId);
+        } else if (intent.hasExtra(EXTRA_KEY_PARTICIPANT_IDS)) {
+            String[] participantIds = intent.getStringArrayExtra(EXTRA_KEY_PARTICIPANT_IDS);
+            try {
+                conversation = getLayerClient().newConversation(new ConversationOptions().distinct(true), participantIds);
+            } catch (LayerConversationException e) {
+                conversation = e.getConversation();
+            }
+        }
+        mConversation = conversation;
+    }
+
+    private void createAndSetRefreshListener() {
+        mMessagesRefreshListener = new MessageRefreshListener(mConversation, mMessagesRefreshLayout);
+        mMessagesRefreshLayout.setOnRefreshListener(mMessagesRefreshListener);
+    }
+
     public void setTitle(boolean useConversation) {
         if (!useConversation) {
             setTitle(R.string.title_select_conversation);
         } else {
             setTitle(ConversationUtils.getConversationTitle(getLayerClient(), getParticipantProvider(), mConversation));
         }
-    }
-
-    private void setConversation(Conversation conversation) {
-        mConversation = conversation;
     }
 
     private void fetchMessages() {
@@ -177,37 +177,34 @@ public class MessagesListActivity extends BaseActivity {
         }
         String text = mMessageEntry.getText().toString();
 
-        // Create notification string
-        String myName = getParticipantProvider().getParticipant(getLayerClient().getAuthenticatedUserId()).getName();
-        String pushMessage = (text.length() < MAX_NOTIFICATION_LENGTH) ? text : (text.substring(0, MAX_NOTIFICATION_LENGTH) + "…");
-        String notificationString = String.format("%s: %s", myName, pushMessage);
-
         // Send message
-        MessagePart part = getLayerClient().newMessagePart(text);
-        Message message = getLayerClient().newMessage(new MessageOptions().pushNotificationMessage(notificationString), part);
-        mConversation.send(message);
+        String notificationString = createMessageNotificationString(text);
+        MessageOptions messageOptions = new MessageOptions().pushNotificationMessage(notificationString);
+        sendMessage(text, messageOptions);
 
         // Clear text
         mMessageEntry.setText(null);
     }
 
-    private void scrollOnNewMessage() {
-        int end = mMessagesAdapter.getItemCount() - 1;
-        if (end <= 0) return;
-        int visible = mMessagesListLayoutManager.findLastVisibleItemPosition();
-        // -3 because -1 seems too finicky
-        if (visible >= (end - 3)) mMessagesList.scrollToPosition(end);
+    private String createMessageNotificationString(String text) {
+        String myName = getParticipantProvider().getParticipant(getLayerClient().getAuthenticatedUserId()).getName();
+        String pushMessage = (text.length() < MAX_NOTIFICATION_LENGTH) ? text : (text.substring(0, MAX_NOTIFICATION_LENGTH) + "…");
+        return String.format("%s: %s", myName, pushMessage);
+    }
+
+    private void sendMessage(String text, MessageOptions messageOptions) {
+        MessagePart part = getLayerClient().newMessagePart(text);
+        Message message = getLayerClient().newMessage(messageOptions, part);
+        mConversation.send(message);
     }
 
     private class MessageTextWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
         }
 
         @Override
@@ -228,6 +225,14 @@ public class MessagesListActivity extends BaseActivity {
         @Override
         public void onMessageAppended() {
             scrollOnNewMessage();
+        }
+
+        private void scrollOnNewMessage() {
+            int end = mMessagesAdapter.getItemCount() - 1;
+            if (end <= 0) return;
+            int visible = mMessagesListLayoutManager.findLastVisibleItemPosition();
+            // -3 because -1 seems too finicky
+            if (visible >= (end - 3)) mMessagesList.scrollToPosition(end);
         }
     }
 }

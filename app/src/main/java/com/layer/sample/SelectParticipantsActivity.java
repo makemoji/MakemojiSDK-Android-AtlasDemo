@@ -40,20 +40,8 @@ public class SelectParticipantsActivity extends BaseActivity {
             mHasCheckedParticipants = savedInstanceState.getBoolean(EXTRA_KEY_HAS_PARTICIPANTS);
         }
 
-        mParticipantList = (ListView) findViewById(R.id.participant_list);
-
-        List<Participant> sortedParticipants = getParticipantsExcludingCurrentUser();
-        mParticipantAdapter = new ParticipantAdapter(this);
-        mParticipantAdapter.addAll(sortedParticipants);
-
-        mParticipantList.setAdapter(mParticipantAdapter);
-        mParticipantList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mHasCheckedParticipants = mParticipantList.getCheckedItemCount() != 0;
-                invalidateOptionsMenu();
-            }
-        });
+        setUpParticipantAdapter();
+        setUpParticipantList();
     }
 
     @Override
@@ -81,6 +69,12 @@ public class SelectParticipantsActivity extends BaseActivity {
         outState.putBoolean(EXTRA_KEY_HAS_PARTICIPANTS, mHasCheckedParticipants);
     }
 
+    private void setUpParticipantAdapter() {
+        List<Participant> sortedParticipants = getParticipantsExcludingCurrentUser();
+        mParticipantAdapter = new ParticipantAdapter(this);
+        mParticipantAdapter.addAll(sortedParticipants);
+    }
+
     @NonNull
     private List<Participant> getParticipantsExcludingCurrentUser() {
         HashMap<String, Participant> participantMap = new HashMap<>();
@@ -89,6 +83,19 @@ public class SelectParticipantsActivity extends BaseActivity {
         List<Participant> sortedParticipants = new ArrayList<>(participantMap.values());
         Collections.sort(sortedParticipants);
         return sortedParticipants;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void setUpParticipantList() {
+        mParticipantList = (ListView) findViewById(R.id.participant_list);
+        mParticipantList.setAdapter(mParticipantAdapter);
+        mParticipantList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mHasCheckedParticipants = mParticipantList.getCheckedItemCount() != 0;
+                invalidateOptionsMenu();
+            }
+        });
     }
 
     private void startConversationActivity() {

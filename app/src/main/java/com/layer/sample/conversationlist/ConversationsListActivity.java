@@ -32,6 +32,21 @@ public class ConversationsListActivity extends BaseActivity {
         setUpRecyclerViewAndAdapter();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, AppSettingsActivity.class));
+                return true;
+
+            case R.id.action_sendlogs:
+                LayerClient.sendLogs(getLayerClient(), this);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     @SuppressWarnings("ConstantConditions")
     private void setUpFab() {
         View floatingActionButton = findViewById(R.id.floating_action_button);
@@ -52,20 +67,5 @@ public class ConversationsListActivity extends BaseActivity {
         LayerClient layerClient = getLayerClient();
         ConversationRecyclerAdapter conversationsAdapter = new ConversationRecyclerAdapter(layerClient, getParticipantProvider());
         conversationsList.setAdapter(conversationsAdapter);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(this, AppSettingsActivity.class));
-                return true;
-
-            case R.id.action_sendlogs:
-                LayerClient.sendLogs(getLayerClient(), this);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
