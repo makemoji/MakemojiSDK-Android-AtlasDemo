@@ -9,32 +9,32 @@ import com.layer.sample.R;
 public class ConversationViewHolder extends RecyclerView.ViewHolder {
 
 
-    private TextView nameTextView;
-    private TextView messageTextView;
-    private TextView lastMessageTimeTextView;
-    private View itemView;
+    private TextView mTitleTextView;
+    private TextView mMessageTextView;
+    private TextView mLastMessageTimeTextView;
+    private View mItemView;
 
     public ConversationViewHolder(View itemView) {
         super(itemView);
-        this.itemView = itemView;
-        nameTextView = (TextView) itemView.findViewById(R.id.name);
-        messageTextView = (TextView) itemView.findViewById(R.id.message);
-        lastMessageTimeTextView = (TextView) itemView.findViewById(R.id.last_message_time);
+        mItemView = itemView;
+        mTitleTextView = (TextView) itemView.findViewById(R.id.conversation_title);
+        mMessageTextView = (TextView) itemView.findViewById(R.id.conversation_message);
+        mLastMessageTimeTextView = (TextView) itemView.findViewById(R.id.conversation_last_message_time);
     }
 
     public void setName(String name) {
-        nameTextView.setText(name);
+        mTitleTextView.setText(name);
     }
 
     public void setMessage(String message) {
-        messageTextView.setText(message);
+        mMessageTextView.setText(message);
     }
 
     public void setLastMessageTime(CharSequence time) {
-        lastMessageTimeTextView.setText(time);
+        mLastMessageTimeTextView.setText(time);
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
-        itemView.setOnClickListener(listener);
+        mItemView.setOnClickListener(listener);
     }
 }

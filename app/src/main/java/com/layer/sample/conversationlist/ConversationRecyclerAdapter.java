@@ -39,6 +39,35 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
         mAuthenticatedUserId = layerClient.getAuthenticatedUserId();
         setHasStableIds(false);
 
+        buildAndExecuteQuery(layerClient);
+    }
+
+    @Override
+    public ConversationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_item, parent, false);
+        return new ConversationViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ConversationViewHolder holder, int position) {
+        mQueryController.updateBoundPosition(position);
+        final Conversation conversation = mQueryController.getItem(position);
+        holder.setOnClickListener(new ItemClickListener(conversation));
+
+        List<String> participantIds = conversation.getParticipants();
+        setTitle(holder, participantIds);
+
+        Message lastMessage = conversation.getLastMessage();
+        setMessage(holder, lastMessage);
+        setMessageDate(holder, lastMessage);
+    }
+
+    @Override
+    public int getItemCount() {
+        return mQueryController.getItemCount();
+    }
+
+    private void buildAndExecuteQuery(LayerClient layerClient) {
         Query<Conversation> query = Query.builder(Conversation.class)
                 /* Only show conversations we're still a member of */
                 .predicate(new Predicate(Conversation.Property.PARTICIPANT_COUNT, Predicate.Operator.GREATER_THAN, 1))
@@ -51,43 +80,7 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
         mQueryController.execute();
     }
 
-    @Override
-    public ConversationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_item, parent, false);
-
-
-        return new ConversationViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(ConversationViewHolder holder, int position) {
-        mQueryController.updateBoundPosition(position);
-        final Conversation conversation = mQueryController.getItem(position);
-        List<String> participantIds = conversation.getParticipants();
-
-        setName(holder, participantIds);
-        holder.setOnClickListener(new ItemClickListener(conversation));
-
-        Message lastMessage = conversation.getLastMessage();
-        setMessage(holder, lastMessage);
-        setMessageDate(holder, lastMessage);
-    }
-
-    private void setMessageDate(ConversationViewHolder holder, Message lastMessage) {
-        Date sentDate = lastMessage.getSentAt();
-        if (sentDate != null) {
-            CharSequence formattedTime = DateUtils.formatSameDayTime(sentDate.getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.SHORT);
-            holder.setLastMessageTime(formattedTime);
-        } else {
-            holder.setLastMessageTime(null);
-        }
-    }
-
-    private void setMessage(ConversationViewHolder holder, Message lastMessage) {
-        holder.setMessage(MessageUtils.getMessageText(lastMessage));
-    }
-
-    private void setName(ConversationViewHolder holder, List<String> participantIds) {
+    private void setTitle(ConversationViewHolder holder, List<String> participantIds) {
         StringBuilder sb = new StringBuilder();
         for (String participantId : participantIds) {
             if (mAuthenticatedUserId.equals(participantId)) {
@@ -103,9 +96,18 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
         holder.setName(sb.toString());
     }
 
-    @Override
-    public int getItemCount() {
-        return mQueryController.getItemCount();
+    private void setMessage(ConversationViewHolder holder, Message lastMessage) {
+        holder.setMessage(MessageUtils.getMessageText(lastMessage));
+    }
+
+    private void setMessageDate(ConversationViewHolder holder, Message lastMessage) {
+        Date sentDate = lastMessage.getSentAt();
+        if (sentDate != null) {
+            CharSequence formattedTime = DateUtils.formatSameDayTime(sentDate.getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.SHORT);
+            holder.setLastMessageTime(formattedTime);
+        } else {
+            holder.setLastMessageTime(null);
+        }
     }
 
     private void syncInitialMessages(final int start, final int length) {
