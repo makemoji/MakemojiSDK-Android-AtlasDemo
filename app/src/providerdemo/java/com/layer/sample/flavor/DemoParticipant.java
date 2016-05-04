@@ -1,13 +1,12 @@
 package com.layer.sample.flavor;
 
-import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.layer.sample.Participant;
 
 public class DemoParticipant implements Participant {
     private String mId;
     private String mName;
-    private Uri mAvatarUrl;
 
     @Override
     public String getId() {
@@ -28,16 +27,7 @@ public class DemoParticipant implements Participant {
     }
 
     @Override
-    public Uri getAvatarUrl() {
-        return mAvatarUrl;
-    }
-
-    public void setAvatarUrl(Uri avatarUrl) {
-        mAvatarUrl = avatarUrl;
-    }
-
-    @Override
-    public int compareTo(Participant another) {
+    public int compareTo(@NonNull Participant another) {
         return getName().toLowerCase().compareTo(another.getName().toUpperCase());
     }
 }

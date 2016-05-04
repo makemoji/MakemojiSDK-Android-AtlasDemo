@@ -211,7 +211,6 @@ public class DemoParticipantProvider implements ParticipantProvider {
             DemoParticipant participant = new DemoParticipant();
             participant.setId(participantObject.optString("id"));
             participant.setName(participantObject.optString("name"));
-            participant.setAvatarUrl(null);
             participants.add(participant);
         }
         return participants;

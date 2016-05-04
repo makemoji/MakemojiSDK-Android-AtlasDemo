@@ -12,6 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.layer.sample.messagelist.MessagesListActivity;
+import com.layer.sample.util.ConversationUtils;
 import com.layer.sample.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -80,7 +81,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                 return;
             }
 
-            // TODO wait for content
+            // TODO Implement after waitForContent has been migrated to the SDK - APPS-2416
             // Try to have content ready for viewing before posting a Notification
 //            Util.waitForContent(App.getLayerClient().connect(), messageId,
 //                    new Util.ContentAvailableCallback() {
@@ -269,9 +270,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             Collections.sort(positions);
 
             // Construct notification
-            // TODO get conversation title
-            String conversationTitle = "TODO get conversation title";
-//            String conversationTitle = Util.getConversationTitle(App.getLayerClient(), App.getParticipantProvider(), conversation);
+            String conversationTitle = ConversationUtils.getConversationTitle(App.getLayerClient(), App.getParticipantProvider(), conversation);
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle().setBigContentTitle(conversationTitle);
             int i;
             if (positions.size() <= MAX_MESSAGES) {
@@ -289,7 +288,6 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                     context.getString(R.string.notifications_new_messages, positions.size());
 
             // Construct notification
-            // TODO: use large icon based on avatars
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.notification)
                     .setContentTitle(conversationTitle)

@@ -1,6 +1,6 @@
 package com.layer.sample.flavor;
 
-import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.layer.sample.Participant;
 
@@ -9,7 +9,6 @@ public class RailsParticipant implements Participant {
     private String mFirstName;
     private String mLastName;
     private String mEmail;
-    private Uri mAvatarUrl;
 
     @Override
     public String getId() {
@@ -50,16 +49,7 @@ public class RailsParticipant implements Participant {
     }
 
     @Override
-    public Uri getAvatarUrl() {
-        return mAvatarUrl;
-    }
-
-    public void setAvatarUrl(Uri avatarUrl) {
-        mAvatarUrl = avatarUrl;
-    }
-
-    @Override
-    public int compareTo(Participant another) {
+    public int compareTo(@NonNull Participant another) {
         int first = getFirstName().toLowerCase().compareTo(((RailsParticipant) another).getFirstName().toLowerCase());
         if (first != 0) return first;
         return getLastName().toLowerCase().compareTo(((RailsParticipant) another).getLastName().toLowerCase());

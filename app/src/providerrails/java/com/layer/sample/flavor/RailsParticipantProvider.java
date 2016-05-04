@@ -228,7 +228,6 @@ public class RailsParticipantProvider implements ParticipantProvider {
             participant.setFirstName(trimmedValue(participantObject, "first_name", null));
             participant.setLastName(trimmedValue(participantObject, "last_name", null));
             participant.setEmail(trimmedValue(participantObject, "email", null));
-            participant.setAvatarUrl(null);
             participants.add(participant);
         }
         return participants;
