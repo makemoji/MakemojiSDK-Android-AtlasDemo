@@ -61,7 +61,7 @@ public class MessagesListActivity extends BaseActivity {
         initializeUi();
         setConversationFromIntent();
         createAndSetRefreshListener();
-        fetchMessages();
+        queryMessages();
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MessagesListActivity extends BaseActivity {
 
     private void initializeMessagesAdapter() {
         mMessagesAdapter = new MessagesRecyclerAdapter(this, getLayerClient(), getParticipantProvider());
-        mMessagesAdapter.setMessageAppenedListener(new ScrollOnMessageAppendedListener());
+        mMessagesAdapter.setMessageAppendedListener(new ScrollOnMessageAppendedListener());
 
         mMessagesRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
     }
@@ -167,8 +167,8 @@ public class MessagesListActivity extends BaseActivity {
         }
     }
 
-    private void fetchMessages() {
-        mMessagesAdapter.setConversation(mConversation);
+    private void queryMessages() {
+        mMessagesAdapter.queryMessages(mConversation);
     }
 
     public void onSendClicked(View v) {

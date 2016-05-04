@@ -12,49 +12,49 @@ import com.layer.sample.R;
 
 public class MessageViewHolder extends RecyclerView.ViewHolder {
 
-    private TextView participantNameTextView;
-    private TextView messageTextView;
-    private TextView statusTextView;
-    private View itemView;
+    private TextView mParticipantNameTextView;
+    private TextView mMessageTextView;
+    private TextView mStatusTextView;
+    private View mItemView;
 
     public MessageViewHolder(View itemView) {
         super(itemView);
-        this.itemView = itemView;
-        participantNameTextView = (TextView) itemView.findViewById(R.id.name);
-        messageTextView = (TextView) itemView.findViewById(R.id.message);
-        statusTextView = (TextView) itemView.findViewById(R.id.status);
+        mItemView = itemView;
+        mParticipantNameTextView = (TextView) itemView.findViewById(R.id.participant_name);
+        mMessageTextView = (TextView) itemView.findViewById(R.id.message);
+        mStatusTextView = (TextView) itemView.findViewById(R.id.message_status);
     }
 
     public void setParticipantName(String participantName) {
         if (TextUtils.isEmpty(participantName)) {
-            participantNameTextView.setVisibility(View.GONE);
+            mParticipantNameTextView.setVisibility(View.GONE);
         } else {
-            participantNameTextView.setVisibility(View.VISIBLE);
-            participantNameTextView.setText(participantName);
+            mParticipantNameTextView.setVisibility(View.VISIBLE);
+            mParticipantNameTextView.setText(participantName);
         }
     }
 
     public void setMessage(String message) {
-        messageTextView.setText(message);
+        mMessageTextView.setText(message);
     }
 
     public void setStatusText(String status) {
-        statusTextView.setText(status);
+        mStatusTextView.setText(status);
     }
 
     public void setIsUsersMessage(boolean isUsersMessage) {
         int gravity;
         if (isUsersMessage) {
             gravity = Gravity.END;
-            messageTextView.setBackgroundResource(R.drawable.message_item_cell_me);
-            messageTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.white));
+            mMessageTextView.setBackgroundResource(R.drawable.message_item_cell_me);
+            mMessageTextView.setTextColor(ContextCompat.getColor(mItemView.getContext(), android.R.color.white));
         } else {
             gravity = Gravity.START;
-            messageTextView.setBackgroundResource(R.drawable.message_item_cell_them);
-            messageTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.black));
+            mMessageTextView.setBackgroundResource(R.drawable.message_item_cell_them);
+            mMessageTextView.setTextColor(ContextCompat.getColor(mItemView.getContext(), android.R.color.black));
         }
-        ((LinearLayout.LayoutParams) messageTextView.getLayoutParams()).gravity = gravity;
-        ((LinearLayout.LayoutParams) statusTextView.getLayoutParams()).gravity = gravity;
+        ((LinearLayout.LayoutParams) mMessageTextView.getLayoutParams()).gravity = gravity;
+        ((LinearLayout.LayoutParams) mStatusTextView.getLayoutParams()).gravity = gravity;
     }
 
 

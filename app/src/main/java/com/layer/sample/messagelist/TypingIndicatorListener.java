@@ -1,6 +1,7 @@
 package com.layer.sample.messagelist;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -37,6 +38,17 @@ public class TypingIndicatorListener implements LayerTypingIndicatorListener {
     }
 
     private void refreshView() {
+        String indicatorText = createTypistsString();
+        mIndicatorView.setText(indicatorText);
+        if (TextUtils.isEmpty(indicatorText)) {
+            mIndicatorView.setVisibility(View.GONE);
+        } else {
+            mIndicatorView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @NonNull
+    private String createTypistsString() {
         StringBuilder sb = new StringBuilder();
         Context context = mIndicatorView.getContext();
         for (String typistId : mActiveTypists) {
@@ -48,12 +60,6 @@ public class TypingIndicatorListener implements LayerTypingIndicatorListener {
                 sb.append(context.getString(R.string.typing_indicator_format, participant.getName()));
             }
         }
-        String indicatorText = sb.toString();
-        mIndicatorView.setText(indicatorText);
-        if (TextUtils.isEmpty(indicatorText)) {
-            mIndicatorView.setVisibility(View.GONE);
-        } else {
-            mIndicatorView.setVisibility(View.VISIBLE);
-        }
+        return sb.toString();
     }
 }

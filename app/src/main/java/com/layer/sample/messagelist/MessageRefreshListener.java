@@ -22,19 +22,6 @@ public class MessageRefreshListener implements OnRefreshListener, LayerChangeEve
         mRefreshLayout = refreshLayout;
     }
 
-    public void registerLayerListener(LayerClient layerClient) {
-        layerClient.registerEventListener(this);
-    }
-
-    public void unregisterLayerListener(LayerClient layerClient) {
-        layerClient.unregisterEventListener(this);
-    }
-
-    private void disableAndStopRefreshing() {
-        mRefreshLayout.setEnabled(false);
-        mRefreshLayout.setRefreshing(false);
-    }
-
     @Override
     public void onRefresh() {
         if (mConversation != null &&
@@ -59,5 +46,18 @@ public class MessageRefreshListener implements OnRefreshListener, LayerChangeEve
                 mRefreshLayout.setRefreshing(status == Conversation.HistoricSyncStatus.SYNC_PENDING);
             }
         });
+    }
+
+    public void registerLayerListener(LayerClient layerClient) {
+        layerClient.registerEventListener(this);
+    }
+
+    public void unregisterLayerListener(LayerClient layerClient) {
+        layerClient.unregisterEventListener(this);
+    }
+
+    private void disableAndStopRefreshing() {
+        mRefreshLayout.setEnabled(false);
+        mRefreshLayout.setRefreshing(false);
     }
 }

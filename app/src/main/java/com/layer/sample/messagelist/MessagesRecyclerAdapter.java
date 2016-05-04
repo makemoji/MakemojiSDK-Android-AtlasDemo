@@ -29,7 +29,7 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
     private RecyclerViewController<Message> mQueryController;
     private String mAuthenticatedUserId;
     private Context mContext;
-    private OnMessageAppendedListener mMessageAppenedListener;
+    private OnMessageAppendedListener mMessageAppendedListener;
 
 
     public MessagesRecyclerAdapter(Context context, LayerClient layerClient, ParticipantProvider participantProvider) {
@@ -37,19 +37,6 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         mParticipantProvider = participantProvider;
         mAuthenticatedUserId = layerClient.getAuthenticatedUserId();
         mQueryController = layerClient.newRecyclerViewController(null, null, new NotifyChangesCallback());
-    }
-
-    public void setConversation(Conversation conversation) {
-        Query<Message> messageQuery = Query.builder(Message.class)
-                .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
-                .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
-                .build();
-        mQueryController.setQuery(messageQuery);
-        mQueryController.execute();
-    }
-
-    public void setMessageAppenedListener(OnMessageAppendedListener listener) {
-        mMessageAppenedListener = listener;
     }
 
     @Override
@@ -64,18 +51,37 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         Message message = mQueryController.getItem(position);
 
         String userId = message.getSender().getUserId();
-        Participant fromParticipant = mParticipantProvider.getParticipant(userId);
         boolean isSelf = userId.equals(mAuthenticatedUserId);
         holder.setIsUsersMessage(isSelf);
+
         if (isSelf) {
             holder.setParticipantName(null);
             holder.setStatusText(getDateWithStatusText(message));
         } else {
+            Participant fromParticipant = mParticipantProvider.getParticipant(userId);
             holder.setParticipantName(fromParticipant.getName());
             holder.setStatusText(getDateText(message));
         }
 
         holder.setMessage(MessageUtils.getMessageText(message));
+    }
+
+    @Override
+    public int getItemCount() {
+        return mQueryController.getItemCount();
+    }
+
+    public void queryMessages(Conversation conversation) {
+        Query<Message> messageQuery = Query.builder(Message.class)
+                .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
+                .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
+                .build();
+        mQueryController.setQuery(messageQuery);
+        mQueryController.execute();
+    }
+
+    public void setMessageAppendedListener(OnMessageAppendedListener listener) {
+        mMessageAppendedListener = listener;
     }
 
     @Nullable
@@ -108,6 +114,7 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         return formattedTime;
     }
 
+    @Nullable
     private String getMessageStatus(Message message) {
         String status = null;
         boolean sent = false;
@@ -143,11 +150,6 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         return status;
     }
 
-    @Override
-    public int getItemCount() {
-        return mQueryController.getItemCount();
-    }
-
     private class NotifyChangesCallback implements RecyclerViewController.Callback {
         @Override
         public void onQueryDataSetChanged(RecyclerViewController controller) {
@@ -167,8 +169,8 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         @Override
         public void onQueryItemInserted(RecyclerViewController controller, int position) {
             notifyItemInserted(position);
-            if (mMessageAppenedListener != null && (position + 1) == getItemCount()) {
-                mMessageAppenedListener.onMessageAppended();
+            if (mMessageAppendedListener != null && (position + 1) == getItemCount()) {
+                mMessageAppendedListener.onMessageAppended();
             }
         }
 
@@ -176,8 +178,8 @@ public class MessagesRecyclerAdapter extends RecyclerView.Adapter<MessageViewHol
         public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
             notifyItemRangeInserted(positionStart, itemCount);
             int positionEnd = positionStart + itemCount;
-            if (mMessageAppenedListener != null && (positionEnd + 1) == getItemCount()) {
-                mMessageAppenedListener.onMessageAppended();
+            if (mMessageAppendedListener != null && (positionEnd + 1) == getItemCount()) {
+                mMessageAppendedListener.onMessageAppended();
             }
         }
 
