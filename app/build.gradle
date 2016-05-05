@@ -35,7 +35,7 @@ dependencies {
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:gridlayout-v7:23.3.0'
 
-    compile 'com.layer.sdk:layer-sdk:0.20.3'
+    compile 'com.layer.sdk:layer-sdk:0.20.4'
     compile 'org.slf4j:slf4j-nop:1.5.8'
 
     // Flavor-specific dependencies

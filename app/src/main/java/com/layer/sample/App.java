@@ -42,7 +42,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Enable verbose logging in debug builds
+        // Enable verbose logging and strict mode in debug builds
         if (BuildConfig.DEBUG) {
             com.layer.sample.util.Log.setAlwaysLoggable(true);
             LayerClient.setLoggingEnabled(this, true);
@@ -127,13 +127,8 @@ public class App extends Application {
      */
     public static LayerClient getLayerClient() {
         if (sLayerClient == null) {
-            // Custom options for constructing a LayerClient
-            LayerClient.Options options = new LayerClient.Options()
-                    /* Fetch the minimum amount per conversation when first authenticated */
-                    .historicSyncPolicy(LayerClient.Options.HistoricSyncPolicy.FROM_LAST_MESSAGE);
-
             // Allow flavor to specify Layer App ID and customize Options.
-            sLayerClient = sFlavor.generateLayerClient(sInstance, options);
+            sLayerClient = sFlavor.generateLayerClient(sInstance, new LayerClient.Options());
 
             // Flavor was unable to generate Layer Client (no App ID, etc.)
             if (sLayerClient == null) return null;

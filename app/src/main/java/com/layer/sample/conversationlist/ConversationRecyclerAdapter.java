@@ -26,15 +26,12 @@ import java.util.Date;
 import java.util.List;
 
 public class ConversationRecyclerAdapter extends RecyclerView.Adapter<ConversationViewHolder> {
-    private static final int SYNC_MESSAGE_COUNT = 20;
 
     private ParticipantProvider mParticipantProvider;
     private RecyclerViewController<Conversation> mQueryController;
     private String mAuthenticatedUserId;
-    private LayerClient mLayerClient;
 
     public ConversationRecyclerAdapter(LayerClient layerClient, ParticipantProvider participantProvider) {
-        mLayerClient = layerClient;
         mParticipantProvider = participantProvider;
         mAuthenticatedUserId = layerClient.getAuthenticatedUserId();
         setHasStableIds(false);
@@ -110,29 +107,6 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
         }
     }
 
-    private void syncInitialMessages(final int start, final int length) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = start; i < start + length; i++) {
-                    try {
-                        final Conversation conversation = mQueryController.getItem(i);
-                        if (conversation == null || conversation.getHistoricSyncStatus() != Conversation.HistoricSyncStatus.MORE_AVAILABLE) {
-                            continue;
-                        }
-                        Query<Message> localCountQuery = Query.builder(Message.class)
-                                .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
-                                .build();
-                        long delta = SYNC_MESSAGE_COUNT - mLayerClient.executeQueryForCount(localCountQuery);
-                        if (delta > 0) conversation.syncMoreHistoricMessages((int) delta);
-                    } catch (IndexOutOfBoundsException e) {
-                        // Concurrent modification
-                    }
-                }
-            }
-        }).start();
-    }
-
     private static class ItemClickListener implements View.OnClickListener {
         private final Conversation conversation;
 
@@ -151,7 +125,6 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
     private class NotifyChangesCallback implements RecyclerViewController.Callback {
         @Override
         public void onQueryDataSetChanged(RecyclerViewController controller) {
-            syncInitialMessages(0, getItemCount());
             notifyDataSetChanged();
         }
 
@@ -167,13 +140,11 @@ public class ConversationRecyclerAdapter extends RecyclerView.Adapter<Conversati
 
         @Override
         public void onQueryItemInserted(RecyclerViewController controller, int position) {
-            syncInitialMessages(position, 1);
             notifyItemInserted(position);
         }
 
         @Override
         public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
-            syncInitialMessages(positionStart, itemCount);
             notifyItemRangeInserted(positionStart, itemCount);
         }
 

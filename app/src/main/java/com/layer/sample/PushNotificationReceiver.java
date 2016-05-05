@@ -15,10 +15,14 @@ import com.layer.sample.messagelist.MessagesListActivity;
 import com.layer.sample.util.ConversationUtils;
 import com.layer.sample.util.Log;
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.changes.LayerChange;
+import com.layer.sdk.changes.LayerChangeEvent;
+import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.query.Predicate;
 import com.layer.sdk.query.Query;
+import com.layer.sdk.query.Queryable;
 import com.layer.sdk.query.SortDescriptor;
 
 import org.json.JSONException;
@@ -30,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PushNotificationReceiver extends BroadcastReceiver {
@@ -81,26 +86,26 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                 return;
             }
 
-            // TODO Implement after waitForContent has been migrated to the SDK - APPS-2416
+            // TODO Refactor after waitForContent has been migrated to the SDK - APPS-2416.
             // Try to have content ready for viewing before posting a Notification
-//            Util.waitForContent(App.getLayerClient().connect(), messageId,
-//                    new Util.ContentAvailableCallback() {
-//                        @Override
-//                        public void onContentAvailable(LayerClient client, Queryable object) {
-//                            if (Log.isLoggable(Log.VERBOSE)) {
-//                                Log.v("Pre-fetched notification content");
-//                            }
-//                            getNotifications(context).add(context, (Message) object, text);
-//                        }
-//
-//                        @Override
-//                        public void onContentFailed(LayerClient client, Uri objectId, String reason) {
-//                            if (Log.isLoggable(Log.ERROR)) {
-//                                Log.e("Failed to fetch notification content");
-//                            }
-//                        }
-//                    }
-//            );
+            waitForContent(App.getLayerClient().connect(), messageId,
+                    new ContentAvailableCallback() {
+                        @Override
+                        public void onContentAvailable(LayerClient client, Queryable object) {
+                            if (Log.isLoggable(Log.VERBOSE)) {
+                                Log.v("Pre-fetched notification content");
+                            }
+                            getNotifications(context).add(context, (Message) object, text);
+                        }
+
+                        @Override
+                        public void onContentFailed(LayerClient client, Uri objectId, String reason) {
+                            if (Log.isLoggable(Log.ERROR)) {
+                                Log.e("Failed to fetch notification content");
+                            }
+                        }
+                    }
+            );
         } else if (intent.getAction().equals(ACTION_CANCEL)) {
             // User swiped notification out
             if (Log.isLoggable(Log.VERBOSE)) {
@@ -343,5 +348,61 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             if (results.isEmpty()) return Long.MIN_VALUE;
             return ((Message) results.get(0)).getPosition();
         }
+    }
+
+    // TODO Remove after waitForContent has been migrated to the SDK - APPS-2416.
+    private static void waitForContent(final LayerClient client, final Uri id, final ContentAvailableCallback callback) {
+        if (client == null) {
+            callback.onContentFailed(client, id, "LayerClient is null");
+            return;
+        }
+
+        if (id == null) {
+            callback.onContentFailed(client, id, "LayerObject ID is null");
+            return;
+        }
+
+        // Register an event listener that waits for the given conversation or message
+        final AtomicBoolean hasNotified = new AtomicBoolean(false);
+        LayerChangeEventListener listener = new LayerChangeEventListener.BackgroundThread() {
+            @Override
+            public void onChangeEvent(LayerChangeEvent layerChangeEvent) {
+                for (LayerChange change : layerChangeEvent.getChanges()) {
+                    Queryable q = (Queryable) change.getObject();
+                    if (!q.getId().equals(id)) continue;
+                    client.unregisterEventListener(this);
+                    if (!hasNotified.compareAndSet(false, true)) return;
+                    if (Log.isLoggable(Log.VERBOSE)) {
+                        Log.v("Received content for " + id);
+                    }
+                    callback.onContentAvailable(client, q);
+                    return;
+                }
+            }
+        };
+        client.registerEventListener(listener);
+
+        // If content is not yet available, wait for the listener.
+        Queryable q = client.get(id);
+        if (q == null) {
+            if (Log.isLoggable(Log.VERBOSE)) {
+                Log.v("Content not yet available, waiting for " + id);
+            }
+            return;
+        }
+
+        // If content is available now, abort the listener and notify now.
+        client.unregisterEventListener(listener);
+        if (!hasNotified.compareAndSet(false, true)) return;
+        if (Log.isLoggable(Log.VERBOSE)) {
+            Log.v("Content already available for " + id);
+        }
+        callback.onContentAvailable(client, q);
+    }
+
+    private interface ContentAvailableCallback {
+        void onContentAvailable(LayerClient client, Queryable object);
+
+        void onContentFailed(LayerClient client, Uri objectId, String reason);
     }
 }
