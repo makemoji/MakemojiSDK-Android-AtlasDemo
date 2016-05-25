@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 
 import com.layer.atlas.util.Util;
@@ -15,6 +16,7 @@ import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.PushNotificationPayload;
 import com.layer.sdk.query.Predicate;
 import com.layer.sdk.query.Query;
 import com.layer.sdk.query.Queryable;
@@ -39,7 +41,6 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     public final static String ACTION_PUSH = "com.layer.sdk.PUSH";
     public final static String ACTION_CANCEL = BuildConfig.APPLICATION_ID + ".CANCEL_PUSH";
 
-    public final static String LAYER_TEXT_KEY = "layer-push-message";
     public final static String LAYER_CONVERSATION_KEY = "layer-conversation-id";
     public final static String LAYER_MESSAGE_KEY = "layer-message-id";
 
@@ -50,7 +51,8 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras == null) return;
-        final String text = extras.getString(LAYER_TEXT_KEY, null);
+
+        final PushNotificationPayload payload = PushNotificationPayload.fromGcmIntentExtras(extras);
         final Uri conversationId = extras.getParcelable(LAYER_CONVERSATION_KEY);
         final Uri messageId = extras.getParcelable(LAYER_MESSAGE_KEY);
 
@@ -81,24 +83,27 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             }
 
             // Try to have content ready for viewing before posting a Notification
-            Util.waitForContent(App.getLayerClient().connect(), messageId,
-                    new Util.ContentAvailableCallback() {
-                        @Override
-                        public void onContentAvailable(LayerClient client, Queryable object) {
-                            if (Log.isLoggable(Log.VERBOSE)) {
-                                Log.v("Pre-fetched notification content");
-                            }
-                            getNotifications(context).add(context, (Message) object, text);
-                        }
+            LayerClient layerClient = App.getLayerClient();
 
-                        @Override
-                        public void onContentFailed(LayerClient client, Uri objectId, String reason) {
-                            if (Log.isLoggable(Log.ERROR)) {
-                                Log.e("Failed to fetch notification content");
-                            }
+            if (layerClient != null) {
+                layerClient.waitForContent(messageId, new LayerClient.ContentAvailableCallback() {
+                    @Override
+                    public void onContentAvailable(LayerClient client, @NonNull Queryable object) {
+                        if (Log.isLoggable(Log.VERBOSE)) {
+                            Log.v("Pre-fetched notification content");
+                        }
+                        getNotifications(context).add(context, (Message) object, payload.getText());
+                    }
+
+                    @Override
+                    public void onContentFailed(LayerClient client, Uri objectId, Exception e) {
+                        if (Log.isLoggable(Log.ERROR)) {
+                            Log.e("Failed to fetch notification content");
                         }
                     }
-            );
+                });
+            }
+
         } else if (intent.getAction().equals(ACTION_CANCEL)) {
             // User swiped notification out
             if (Log.isLoggable(Log.VERBOSE)) {
