@@ -11,5 +11,8 @@
         <item name="AtlasAddressBar">@style/AtlasAddressBar</item>
         <item name="AtlasTypingIndicator">@style/AtlasTypingIndicator</item>
     </style>
+    <style name="MojiInputLayoutDefaultStyle.White">
+        <item name="_mm_mainBgColor">#FFFFFF</item>
+    </style>
 
 </resources>

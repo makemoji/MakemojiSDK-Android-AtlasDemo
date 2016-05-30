@@ -1,3 +1,12 @@
+# MakeMoji Atlas Messenger Example
+
+An example of how to use the the Atlas Messaging Framework together with the MakeMoji Android SDK.
+Refer to the original README below for Atlas instructions and [here](https://github.com/makemoji/MakemojiSDK-Android) for the MakeMoji SDK.
+All new classes have been added under [com.layer.messenger.makemoji](app/src/main/java/com/layer/messenger/makemoji/).
+Use MakeMojiAtlasComposer and MakeMojiCellFactory and  to compose and display MakeMoji messages. 
+Copy the new version of [atlas_message_composer.xml](app/src/main/res/layout/atlas_message_composer.xml) to your project so the composer will use a compatible MojiEditText.
+Refer to the modified [MessagesListActivity](app/src/main/java/com/layer/messenger/MessagesListActivity.java) to see how to use the Atlas composer and MojiInputLayout together.
+
 # Atlas Messenger for Android
 
 Atlas Messenger is a fully-featured messaging app following [Material Design guidelines](https://www.google.com/design/spec/material-design/introduction.html#introduction-goals), built on top of the [Layer SDK](https://layer.com/), using the [Atlas UI toolkit](https://github.com/layerhq/Atlas-Android).

@@ -56,6 +56,7 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
 import com.makemoji.mojilib.Moji;
+import com.makemoji.mojilib.MojiInputLayout;
 
 import java.util.ArrayList;
 
@@ -144,9 +145,12 @@ public class MakeMojiAtlasComposer extends FrameLayout {
         });
 
         mSendButton = (Button) findViewById(com.layer.atlas.R.id.send_button);
+        final MojiInputLayout analytics = new MojiInputLayout(getContext());
         mSendButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!mTextSender.requestSend(Moji.toHtml(mMessageEditText.getText()))) return;
+                analytics.setInputText(mMessageEditText.getText());
+                analytics.manualSaveInputToRecentsAndBackend();
                 mMessageEditText.setText("");
                 mSendButton.setEnabled(false);
             }

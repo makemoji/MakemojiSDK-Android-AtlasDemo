@@ -16,14 +16,12 @@ import android.widget.Toast;
 
 import com.layer.atlas.AtlasAddressBar;
 import com.layer.atlas.AtlasHistoricMessagesFetchLayout;
-import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesRecyclerView;
 import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.messagetypes.generic.GenericCellFactory;
 import com.layer.atlas.messagetypes.location.LocationCellFactory;
 import com.layer.atlas.messagetypes.location.LocationSender;
 import com.layer.atlas.messagetypes.singlepartimage.SinglePartImageCellFactory;
-import com.layer.atlas.messagetypes.text.TextCellFactory;
 import com.layer.atlas.messagetypes.text.TextSender;
 import com.layer.atlas.messagetypes.threepartimage.CameraSender;
 import com.layer.atlas.messagetypes.threepartimage.GallerySender;
@@ -33,7 +31,6 @@ import com.layer.atlas.util.Util;
 import com.layer.atlas.util.views.SwipeableItem;
 import com.layer.messenger.makemoji.MakeMojiAtlasComposer;
 import com.layer.messenger.makemoji.MakeMojiCellFactory;
-import com.layer.messenger.makemoji.MakeMojiSender;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerConversationException;
 import com.layer.sdk.messaging.Conversation;
@@ -45,6 +42,11 @@ import com.makemoji.mojilib.MojiInputLayout;
 
 import java.util.List;
 
+/**
+ * A modified version of the example activity. We add a MojiInputLayout below a MakeMojiAtlasComposer in R.layout.activity_messages_list
+ * We set up the mojiInputLayout just after the composer. Its visibility is adjusted  in setUiState. The custom composer ignores the TextSender we give it.
+ * Register the MakeMojiCellFactory to render the list.
+ */
 public class MessagesListActivity extends BaseActivity {
     private UiState mState;
     private Conversation mConversation;
@@ -69,6 +71,7 @@ public class MessagesListActivity extends BaseActivity {
                 mAddressBar.setSuggestionsVisibility(View.VISIBLE);
                 mHistoricFetchLayout.setVisibility(View.GONE);
                 mMessageComposer.setVisibility(View.GONE);
+                mojiInputLayout.setVisibility(View.GONE);
                 break;
 
             case ADDRESS_COMPOSER:
@@ -76,6 +79,7 @@ public class MessagesListActivity extends BaseActivity {
                 mAddressBar.setSuggestionsVisibility(View.VISIBLE);
                 mHistoricFetchLayout.setVisibility(View.GONE);
                 mMessageComposer.setVisibility(View.VISIBLE);
+                mojiInputLayout.setVisibility(View.GONE);
                 break;
 
             case ADDRESS_CONVERSATION_COMPOSER:
@@ -83,6 +87,7 @@ public class MessagesListActivity extends BaseActivity {
                 mAddressBar.setSuggestionsVisibility(View.GONE);
                 mHistoricFetchLayout.setVisibility(View.VISIBLE);
                 mMessageComposer.setVisibility(View.VISIBLE);
+                mojiInputLayout.setVisibility(View.GONE);
                 break;
 
             case CONVERSATION_COMPOSER:
@@ -90,6 +95,7 @@ public class MessagesListActivity extends BaseActivity {
                 mAddressBar.setSuggestionsVisibility(View.GONE);
                 mHistoricFetchLayout.setVisibility(View.VISIBLE);
                 mMessageComposer.setVisibility(View.VISIBLE);
+                mojiInputLayout.setVisibility(View.VISIBLE);
                 break;
         }
     }
