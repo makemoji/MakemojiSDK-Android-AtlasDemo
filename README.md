@@ -2,8 +2,11 @@
 
 An example of how to use the the Atlas Messaging Framework together with the MakeMoji Android SDK.
 Refer to the original README below for Atlas instructions and [here](https://github.com/makemoji/MakemojiSDK-Android) for the MakeMoji SDK.
+To run the sample, add the line "mm.key=Your-key" to local.properties or directly into the projects build.gradle so it can be loaded in App.java.
+
+
 All new classes have been added under [com.layer.messenger.makemoji](app/src/main/java/com/layer/messenger/makemoji/).
-Use MakeMojiAtlasComposer and MakeMojiCellFactory and  to compose and display MakeMoji messages. 
+Use MakeMojiAtlasComposer and MakeMojiCellFactory and to compose and display MakeMoji messages. 
 Copy the new version of [atlas_message_composer.xml](app/src/main/res/layout/atlas_message_composer.xml) to your project so the composer will use a compatible MojiEditText.
 Refer to the modified [MessagesListActivity](app/src/main/java/com/layer/messenger/MessagesListActivity.java) to see how to use the Atlas composer and MojiInputLayout together.
 
