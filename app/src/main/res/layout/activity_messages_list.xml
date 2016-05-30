@@ -7,7 +7,6 @@
         android:id="@+id/conversation_launcher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
     <com.layer.atlas.AtlasHistoricMessagesFetchLayout
         android:id="@+id/historic_sync_layout"
         android:layout_width="match_parent"
@@ -21,10 +20,17 @@
 
     </com.layer.atlas.AtlasHistoricMessagesFetchLayout>
 
-    <com.layer.atlas.AtlasMessageComposer
+    <com.layer.messenger.makemoji.MakeMojiAtlasComposer
         android:id="@+id/message_composer"
         android:layout_width="match_parent"
         android:minHeight="48dp"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
+
+    <com.makemoji.mojilib.MojiInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mojiInputLayout"
+        />
+
 </LinearLayout>

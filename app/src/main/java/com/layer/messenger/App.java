@@ -11,6 +11,7 @@ import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.requesthandlers.MessagePartRequestHandler;
 import com.layer.messenger.util.AuthenticationProvider;
 import com.layer.sdk.LayerClient;
+import com.makemoji.mojilib.Moji;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
@@ -49,6 +50,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Moji.initialize(this,BuildConfig.MakeMojiKey);
 
         // Enable verbose logging in debug builds
         if (BuildConfig.DEBUG) {

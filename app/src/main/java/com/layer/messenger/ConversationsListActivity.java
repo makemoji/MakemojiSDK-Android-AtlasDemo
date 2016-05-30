@@ -10,6 +10,8 @@ import android.view.View;
 import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
 import com.layer.atlas.util.views.SwipeableItem;
+import com.layer.messenger.makemoji.MakeMojiConversationsAdapter;
+import com.layer.messenger.makemoji.MakeMojiConversationsRecyclerView;
 import com.layer.messenger.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -27,14 +29,14 @@ public class ConversationsListActivity extends BaseActivity {
             return;
         }
 
-        final AtlasConversationsRecyclerView conversationsList = (AtlasConversationsRecyclerView) findViewById(R.id.conversations_list);
+        final MakeMojiConversationsRecyclerView conversationsList = (MakeMojiConversationsRecyclerView) findViewById(R.id.conversations_list);
 
         // Atlas methods
         conversationsList.init(getLayerClient(), getParticipantProvider(), getPicasso())
                 .setInitialHistoricMessagesToFetch(20)
-                .setOnConversationClickListener(new AtlasConversationsAdapter.OnConversationClickListener() {
+                .setOnConversationClickListener(new MakeMojiConversationsAdapter.OnConversationClickListener() {
                     @Override
-                    public void onConversationClick(AtlasConversationsAdapter adapter, Conversation conversation) {
+                    public void onConversationClick(MakeMojiConversationsAdapter adapter, Conversation conversation) {
                         Intent intent = new Intent(ConversationsListActivity.this, MessagesListActivity.class);
                         if (Log.isLoggable(Log.VERBOSE)) {
                             Log.v("Launching MessagesListActivity with existing conversation ID: " + conversation.getId());
@@ -44,7 +46,7 @@ public class ConversationsListActivity extends BaseActivity {
                     }
 
                     @Override
-                    public boolean onConversationLongClick(AtlasConversationsAdapter adapter, Conversation conversation) {
+                    public boolean onConversationLongClick(MakeMojiConversationsAdapter adapter, Conversation conversation) {
                         return false;
                     }
                 })

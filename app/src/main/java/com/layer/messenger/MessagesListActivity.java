@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasAddressBar;
 import com.layer.atlas.AtlasHistoricMessagesFetchLayout;
@@ -30,11 +31,17 @@ import com.layer.atlas.messagetypes.threepartimage.ThreePartImageCellFactory;
 import com.layer.atlas.typingindicators.BubbleTypingIndicatorFactory;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.views.SwipeableItem;
+import com.layer.messenger.makemoji.MakeMojiAtlasComposer;
+import com.layer.messenger.makemoji.MakeMojiCellFactory;
+import com.layer.messenger.makemoji.MakeMojiSender;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerConversationException;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.ConversationOptions;
 import com.layer.sdk.messaging.Message;
+import com.makemoji.mojilib.HyperMojiListener;
+import com.makemoji.mojilib.MojiEditText;
+import com.makemoji.mojilib.MojiInputLayout;
 
 import java.util.List;
 
@@ -46,7 +53,8 @@ public class MessagesListActivity extends BaseActivity {
     private AtlasHistoricMessagesFetchLayout mHistoricFetchLayout;
     private AtlasMessagesRecyclerView mMessagesList;
     private AtlasTypingIndicator mTypingIndicator;
-    private AtlasMessageComposer mMessageComposer;
+    MojiInputLayout mojiInputLayout;
+    private MakeMojiAtlasComposer mMessageComposer;
 
     public MessagesListActivity() {
         super(R.layout.activity_messages_list, R.menu.menu_messages_list, R.string.title_select_conversation, true);
@@ -154,7 +162,13 @@ public class MessagesListActivity extends BaseActivity {
         mMessagesList = ((AtlasMessagesRecyclerView) findViewById(R.id.messages_list))
                 .init(getLayerClient(), getParticipantProvider(), getPicasso())
                 .addCellFactories(
-                        new TextCellFactory(),
+                       // new TextCellFactory(),
+                        new MakeMojiCellFactory(new HyperMojiListener() {
+                            @Override
+                            public void onClick(String s) {
+                                Toast.makeText(MessagesListActivity.this, "url "+ s,Toast.LENGTH_LONG).show();
+                            }
+                        }),
                         new ThreePartImageCellFactory(this, getLayerClient(), getPicasso()),
                         new LocationCellFactory(this, getPicasso()),
                         new SinglePartImageCellFactory(this, getLayerClient(), getPicasso()),
@@ -198,9 +212,9 @@ public class MessagesListActivity extends BaseActivity {
                     }
                 });
 
-        mMessageComposer = ((AtlasMessageComposer) findViewById(R.id.message_composer))
+        mMessageComposer = ((MakeMojiAtlasComposer) findViewById(R.id.message_composer))
                 .init(getLayerClient(), getParticipantProvider())
-                .setTextSender(new TextSender())
+                .setTextSender(new TextSender(20000))
                 .addAttachmentSenders(
                         new CameraSender(R.string.attachment_menu_camera, R.drawable.ic_photo_camera_white_24dp, this),
                         new GallerySender(R.string.attachment_menu_gallery, R.drawable.ic_photo_white_24dp, this),
@@ -214,6 +228,15 @@ public class MessagesListActivity extends BaseActivity {
                         }
                     }
                 });
+
+        mojiInputLayout = (MojiInputLayout)findViewById(R.id.mojiInputLayout);
+        mojiInputLayout.attatchMojiEditText((MojiEditText)findViewById(R.id.message_edit_text));
+        findViewById(R.id.message_edit_text).setTag(R.id._makemoji_hypermoji_listener_tag_id,new HyperMojiListener() {
+            @Override
+            public void onClick(String s) {
+                Toast.makeText(MessagesListActivity.this, "edit url "+ s,Toast.LENGTH_LONG).show();
+            }
+        });
 
         // Get or create Conversation from Intent extras
         Conversation conversation = null;

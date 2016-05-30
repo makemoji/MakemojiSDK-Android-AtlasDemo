@@ -6,10 +6,11 @@ android {
 
     defaultConfig {
         applicationId "com.layer.messenger"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 29
         versionName "$versionCode"
+        buildConfigField "String", "MakeMojiKey", "\""+getProps('mm.key')+"\""
     }
 
     productFlavors {
@@ -36,4 +37,21 @@ dependencies {
 
     // Flavor-specific dependencies
     providerdemoCompile 'com.google.android.gms:play-services-vision:8.4.0'
+    compile 'com.makemoji:makemoji-sdk-android:0.9.702'
+}
+repositories {
+    jcenter()
+    maven {
+        url "https://dl.bintray.com/mm/maven/"
+    }
+}
+def getProps(String propName) {
+    def propsFile = rootProject.file('local.properties')
+    if (propsFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(propsFile))
+        return props[propName]
+    } else {
+        return "";
+    }
 }

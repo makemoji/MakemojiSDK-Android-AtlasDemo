@@ -2,7 +2,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <com.layer.atlas.AtlasConversationsRecyclerView
+    <com.layer.messenger.makemoji.MakeMojiConversationsRecyclerView
         android:id="@+id/conversations_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
