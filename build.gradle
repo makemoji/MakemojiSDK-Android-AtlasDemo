@@ -10,6 +10,7 @@ buildscript {
 allprojects {
     repositories {
         maven { url "https://raw.githubusercontent.com/layerhq/releases-android/master/releases/" }
+        maven { url "https://raw.githubusercontent.com/layerhq/releases-android-atlas/master/releases/" }
         jcenter()
     }
 }
