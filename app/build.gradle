@@ -8,7 +8,7 @@ android {
         applicationId "com.layer.messenger"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 29
+        versionCode 30
         versionName "$versionCode"
     }
 
@@ -32,7 +32,7 @@ android {
 
 dependencies {
     // All flavors
-    compile 'com.layer.atlas:layer-atlas:0.2.10'
+    compile 'com.layer.atlas:layer-atlas:0.2.11'
 
     // Flavor-specific dependencies
     providerdemoCompile 'com.google.android.gms:play-services-vision:8.4.0'
