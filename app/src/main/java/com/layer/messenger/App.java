@@ -52,7 +52,7 @@ public class App extends Application {
 
         // Enable verbose logging in debug builds
         if (BuildConfig.DEBUG) {
-            com.layer.atlas.util.Log.setAlwaysLoggable(true);
+            com.layer.atlas.util.Log.setLoggingEnabled(true);
             com.layer.messenger.util.Log.setAlwaysLoggable(true);
             LayerClient.setLoggingEnabled(this, true);
         }
