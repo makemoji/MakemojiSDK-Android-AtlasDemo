@@ -100,6 +100,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                         if (Log.isLoggable(Log.ERROR)) {
                             Log.e("Failed to fetch notification content");
                         }
+                        getNotifications(context).notifyOnContentFailure(context, conversationId, messageId, payload.getText());
                     }
                 });
             }
@@ -303,28 +304,37 @@ public class PushNotificationReceiver extends BroadcastReceiver {
                     .setStyle(inboxStyle);
 
             // Intent to launch when clicked
-            Intent clickIntent = new Intent(context, MessagesListActivity.class)
-                    .setPackage(context.getApplicationContext().getPackageName())
-                    .putExtra(LAYER_CONVERSATION_KEY, conversation.getId())
-                    .putExtra(LAYER_MESSAGE_KEY, message.getId())
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent clickPendingIntent = PendingIntent.getActivity(
-                    context, sPendingIntentCounter.getAndIncrement(),
-                    clickIntent, PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent clickPendingIntent = createNotificationClickIntent(context, conversation.getId(), message.getId());
             mBuilder.setContentIntent(clickPendingIntent);
 
             // Intent to launch when swiped out
-            Intent cancelIntent = new Intent(ACTION_CANCEL)
-                    .setPackage(context.getApplicationContext().getPackageName())
-                    .putExtra(LAYER_CONVERSATION_KEY, conversation.getId())
-                    .putExtra(LAYER_MESSAGE_KEY, message.getId());
-            PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(
-                    context, sPendingIntentCounter.getAndIncrement(),
-                    cancelIntent, PendingIntent.FLAG_ONE_SHOT);
-            mBuilder.setDeleteIntent(cancelPendingIntent);
+            PendingIntent deleteIntent = createNotificationDeleteIntent(context, conversation.getId(), message.getId());
+            mBuilder.setDeleteIntent(deleteIntent);
 
             // Show the notification
             mManager.notify(conversation.getId().toString(), MESSAGE_ID, mBuilder.build());
+        }
+
+        private void notifyOnContentFailure(Context context, Uri conversationId, Uri messageId, String text) {
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.notification)
+                    .setContentTitle(context.getString(R.string.push_notification_no_content_title))
+                    .setContentText(text)
+                    .setAutoCancel(true)
+                    .setLights(context.getResources().getColor(R.color.atlas_action_bar_background), 100, 1900)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
+
+            // Intent to launch when clicked
+            PendingIntent clickPendingIntent = createNotificationClickIntent(context, conversationId, messageId);
+            mBuilder.setContentIntent(clickPendingIntent);
+
+            // Intent to launch when swiped out
+            PendingIntent deleteIntent = createNotificationDeleteIntent(context, conversationId, messageId);
+            mBuilder.setDeleteIntent(deleteIntent);
+
+            // Show the notification
+            mManager.notify(conversationId.toString(), MESSAGE_ID, mBuilder.build());
         }
 
         /**
@@ -346,6 +356,27 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             List results = layerClient.executeQueryForObjects(query);
             if (results.isEmpty()) return Long.MIN_VALUE;
             return ((Message) results.get(0)).getPosition();
+        }
+
+        private static PendingIntent createNotificationClickIntent(Context context, Uri conversationId, Uri messageId) {
+            Intent clickIntent = new Intent(context, MessagesListActivity.class)
+                    .setPackage(context.getApplicationContext().getPackageName())
+                    .putExtra(LAYER_CONVERSATION_KEY, conversationId)
+                    .putExtra(LAYER_MESSAGE_KEY, messageId)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            return PendingIntent.getActivity(
+                    context, sPendingIntentCounter.getAndIncrement(),
+                    clickIntent, PendingIntent.FLAG_ONE_SHOT);
+        }
+
+        private static PendingIntent createNotificationDeleteIntent(Context context, Uri conversationId, Uri messageId) {
+            Intent cancelIntent = new Intent(ACTION_CANCEL)
+                    .setPackage(context.getApplicationContext().getPackageName())
+                    .putExtra(LAYER_CONVERSATION_KEY, conversationId)
+                    .putExtra(LAYER_MESSAGE_KEY, messageId);
+            return PendingIntent.getBroadcast(
+                    context, sPendingIntentCounter.getAndIncrement(),
+                    cancelIntent, PendingIntent.FLAG_ONE_SHOT);
         }
     }
 }
