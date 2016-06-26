@@ -74,5 +74,7 @@
     <string name="settings_title_auto_download_types">Auto-Download MIME Types</string>
 
     <string name="notifications_num_more">+%1$d more</string>
-    <string name="notifications_new_messages">%1$s new messages</string>
+    <string name="notifications_new_messages">%1$d new messages</string>
+
+    <string name="push_notification_no_content_title">New message (tap to sync)</string>
 </resources>

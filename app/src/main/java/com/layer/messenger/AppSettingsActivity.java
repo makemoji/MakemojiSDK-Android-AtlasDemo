@@ -162,7 +162,7 @@ public class AppSettingsActivity extends BaseActivity implements LayerConnection
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 LayerClient.setLoggingEnabled(AppSettingsActivity.this, isChecked);
-                com.layer.atlas.util.Log.setAlwaysLoggable(isChecked);
+                com.layer.atlas.util.Log.setLoggingEnabled(isChecked);
                 Log.setAlwaysLoggable(isChecked);
             }
         });
