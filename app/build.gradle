@@ -37,7 +37,7 @@ dependencies {
 
     // Flavor-specific dependencies
     providerdemoCompile 'com.google.android.gms:play-services-vision:8.4.0'
-    compile 'com.makemoji:makemoji-sdk-android:0.9.706'
+    compile 'com.makemoji:makemoji-sdk-android:0.9.725'
 }
 repositories {
     jcenter()
